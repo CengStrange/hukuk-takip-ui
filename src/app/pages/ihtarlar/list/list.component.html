@@ -1,0 +1,108 @@
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="m-0">İhtarlar</h3>
+    <a class="btn btn-primary" [routerLink]="['/ihtarlar/yeni']">Yeni İhtar</a>
+  </div>
+
+  <div class="row g-2 mb-3">
+    <div class="col">
+      <input
+        class="form-control"
+        placeholder="Ara (Müşteri, İhtar No, Noter...)"
+        [ngModel]="arama()"
+        (ngModelChange)="arama.set($event)"
+        (keyup.enter)="ara()"
+      />
+    </div>
+    <div class="col-auto">
+      <button class="btn btn-outline-secondary" (click)="ara()">Ara</button>
+    </div>
+  </div>
+
+  <div *ngIf="yukleniyor()" class="alert alert-info">Yükleniyor...</div>
+  <div
+    *ngIf="!yukleniyor() && kayitlar().length === 0"
+    class="alert alert-secondary"
+  >
+    Kayıt bulunamadı.
+  </div>
+
+  <div class="table-responsive" *ngIf="kayitlar().length > 0">
+    <table class="table table-sm align-middle">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Müşteri</th>
+          <th>İhtar Tarihi</th>
+          <th>İhtar No</th>
+          <th>Noter</th>
+          <th>Yevmiye</th>
+          <th class="text-end">Nakit</th>
+          <th class="text-end">Gayri Nakit</th>
+          <th>Son Ödeme</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let k of kayitlar(); let i = index">
+          <td>{{ i + 1 + (sayfa() - 1) * sayfaBoyutu() }}</td>
+          <td>{{ k.musteriAd }}</td>
+          <td>{{ k.ihtarTarihi | date : 'dd.MM.yyyy' }}</td>
+          <td>{{ k.ihtarNo || '-' }}</td>
+          <td>{{ k.noterAdi || '-' }}</td>
+          <td>{{ k.yevmiyeNo || '-' }}</td>
+          <td class="text-end">
+            {{ k.ihtarnameNakitTutar | number : '1.2-2' }}
+          </td>
+          <td class="text-end">
+            {{ k.ihtarnameGayriNakitTutar | number : '1.2-2' }}
+          </td>
+          <td>
+            <span
+              class="badge"
+              [class.text-bg-warning]="!k.sonOdemeTarihi"
+              [class.text-bg-success]="!!k.sonOdemeTarihi"
+            >
+              {{ sonOdemeBadge(k) }}
+            </span>
+          </td>
+          <td class="text-end">
+            <a
+              class="btn btn-sm btn-outline-primary me-1"
+              [routerLink]="['/ihtarlar', k.id, 'duzenle']"
+              >Düzenle</a
+            >
+            <button
+              class="btn btn-sm btn-outline-danger"
+              (click)="sil(k.id)"
+            >
+              Sil
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div
+    class="d-flex justify-content-between align-items-center mt-3"
+    *ngIf="toplam() > 0"
+  >
+    <div>Toplam: <strong>{{ toplam() }}</strong></div>
+    <div class="btn-group">
+      <button
+        class="btn btn-outline-secondary"
+        [disabled]="sayfa() === 1"
+        (click)="sayfa.set(sayfa() - 1); yukle()"
+      >
+        «
+      </button>
+      <button
+        class="btn btn-outline-secondary"
+        (click)="sayfa.set(sayfa() + 1); yukle()"
+      >
+        »
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,64 @@
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="m-0">Avukatlar</h3>
+        <a class="btn btn-primary" [routerLink]="['/avukatlar/yeni']">Yeni Avukat</a>
+    </div>
+
+    <div class="d-flex gap-2 mb-3">
+        <input class="form-control" [(ngModel)]="q" placeholder="Ara (Ad, Soyad, TCKN, Vergi No)" (keyup.enter)="ara()" />
+        <button class="btn btn-outline-secondary" (click)="ara()">Ara</button>
+        <button class="btn btn-outline-dark" (click)="temizle()">Temizle</button>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-dark table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Adı Soyadı</th>
+                    <th class="text-end">İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let a of data.items; index as i">
+                    <td>{{ (page - 1) * pageSize + i + 1 }}</td>
+                    <td>{{ a.adi }} {{ a.soyadi }}</td>
+                    <td class="text-end">
+                        <a class="btn btn-sm btn-outline-info me-2" [routerLink]="['/avukatlar/duzenle', a.id]">Düzenle</a>
+                        <button class="btn btn-sm btn-outline-danger" (click)="sil(a)" [disabled]="silLoadingId() === a.id">
+                            {{ silLoadingId() === a.id ? 'Siliniyor...' : 'Sil' }}
+                        </button>
+                    </td>
+                </tr>
+                <tr *ngIf="data.items.length === 0">
+                    <td colspan="3" class="text-center text-muted py-4">Kayıt bulunamadı.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mt-2">
+        <div>Toplam: <strong>{{ data.totalCount }}</strong></div>
+        <nav>
+            <ul class="pagination m-0">
+                <li class="page-item" [class.disabled]="page === 1">
+                    <button class="page-link" (click)="yenile(page - 1)">Önceki</button>
+                </li>
+                <li class="page-item disabled">
+                    <span class="page-link">{{ page }} / {{ toplamSayfa }}</span>
+                </li>
+                <li class="page-item" [class.disabled]="page >= toplamSayfa">
+                    <button class="page-link" (click)="yenile(page + 1)">Sonraki</button>
+                </li>
+            </ul>
+        </nav>
+        <div class="d-flex align-items-center gap-2">
+            <label class="text-nowrap">Sayfa Boyutu</label>
+            <select class="form-select" style="width:auto" [(ngModel)]="pageSize" (change)="yenile(1)">
+                <option [ngValue]="10">10</option>
+                <option [ngValue]="20">20</option>
+                <option [ngValue]="50">50</option>
+            </select>
+        </div>
+    </div>
+</div>

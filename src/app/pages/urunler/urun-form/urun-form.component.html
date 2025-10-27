@@ -1,0 +1,162 @@
+<div class="container py-4" [class.opacity-50]="kaydediliyor()">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="m-0">{{ duzenlemeMi ? 'Ürün Düzenle' : 'Yeni Ürün' }}</h3>
+        <a class="btn btn-outline-secondary" [routerLink]="['/urunler']">Listeye Dön</a>
+    </div>
+
+    <form [formGroup]="frm" (ngSubmit)="onSubmit()" novalidate>
+        <div class="row g-3">
+
+            <div class="col-md-4">
+                <label class="form-label">Borçlu <span class="text-danger">*</span></label>
+                <input class="form-control" formControlName="musteriArama" placeholder="Müşteri adı veya no ile ara..." autocomplete="off" />
+                <div class="list-group position-absolute w-auto" *ngIf="musteriAramaSonuclari().length > 0">
+                    <button type="button" class="list-group-item list-group-item-action" *ngFor="let m of musteriAramaSonuclari()" (click)="secMusteri(m)">
+                        {{ m.adiUnvani }} ({{ m.musteriNo }})
+                    </button>
+                </div>
+                <div *ngIf="secilenMusteri() as m" class="form-text text-success">
+                    Seçildi: {{ m.adiUnvani }}
+                </div>
+                <div class="invalid-feedback d-block" *ngIf="submitted && frm.controls.musteriId.invalid">
+                    Borçlu seçimi zorunludur.
+                </div>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Avukat</label>
+                <input class="form-control" formControlName="avukatArama" placeholder="Avukat adı ile ara..." autocomplete="off" />
+                <div class="list-group position-absolute w-auto" *ngIf="avukatAramaSonuclari().length > 0">
+                    <button type="button" class="list-group-item list-group-item-action" *ngFor="let a of avukatAramaSonuclari()" (click)="secAvukat(a)">
+                        {{ a.adi }} {{ a.soyadi }}
+                    </button>
+                </div>
+                <div *ngIf="secilenAvukat() as a" class="form-text text-success">
+                    Seçildi: {{ a.adi }} {{ a.soyadi }}
+                </div>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Ürün Adı <span class="text-danger">*</span></label>
+                <select class="form-select" formControlName="urunTipi">
+                    <option [ngValue]="null" disabled>Seçiniz</option>
+                    <option *ngFor="let item of urunTipleri" [ngValue]="+item[0]">{{ item[1] }}</option>
+                </select>
+                <div class="invalid-feedback d-block" *ngIf="submitted && frm.controls.urunTipi.invalid">
+                    Ürün Adı zorunludur.
+                </div>
+            </div>
+
+            <h5 class="mt-4">Takip Bilgileri</h5>
+            <hr class="mt-0">
+
+            <div class="col-md-4">
+                <label class="form-label">Takip Miktarı <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" formControlName="takipMiktari" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Döviz <span class="text-danger">*</span></label>
+                <select class="form-select" formControlName="dovizTipi">
+                    <option value="TL">TL</option>
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Takip Tarihi <span class="text-danger">*</span></label>
+                <input 
+                type="date" 
+                class="form-control" 
+                (keydown)="$event.preventDefault()"    
+                style="cursor: pointer;" 
+                formControlName="kimlikVerilisTarihi" formControlName="takipTarihi" />
+                </div>
+
+
+            <div class="col-md-4">
+                <label class="form-label">Aylık Faiz Oranı (%)</label>
+                <input type="number" class="form-control" formControlName="aylikFaizOrani" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Faiz Bakiyesi</label>
+                <input type="number" class="form-control" formControlName="faizBakiyesi" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Masraf Bakiyesi</label>
+                <input type="number" class="form-control" formControlName="masrafBakiyesi" />
+            </div>
+
+            <h5 class="mt-4">Şube ve Mudi Bilgileri</h5>
+            <hr class="mt-0">
+
+            <!-- Şubeler -->
+            <div class="col-md-4">
+                <label class="form-label">Kredi Birim Kodu</label>
+                <select class="form-select" formControlName="krediBirimKoduSubeId">
+                    <option [ngValue]="null">Seçiniz</option>
+                    <option *ngFor="let s of (subeler$ | async)" [ngValue]="s.brmKod">{{ s.brmAd }}</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Takip Birim Kodu</label>
+                <select class="form-select" formControlName="takipBirimKoduSubeId">
+                    <option [ngValue]="null">Seçiniz</option>
+                    <option *ngFor="let s of (subeler$ | async)" [ngValue]="s.brmKod">{{ s.brmAd }}</option>
+                </select>
+            </div>
+
+            <!-- Mudi Nolar -->
+            <div class="col-md-4">
+                <label class="form-label">Kredi Mudi No</label>
+                <input 
+                    type="text" 
+                    class="form-control" 
+                    formControlName="krediMudiNo" 
+                    maxlength="50" 
+                    (input)="onInputNumbersOnly($event)"
+                />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Masraf Mudi No</label>
+                <input 
+                    type="text" 
+                    class="form-control" 
+                    formControlName="masrafMudiNo" 
+                    maxlength="50" 
+                    (input)="onInputNumbersOnly($event)"
+                />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Faiz Mudi No</label>
+                <input 
+                    type="text" 
+                    class="form-control" 
+                    formControlName="faizMudiNo" 
+                    maxlength="50" 
+                    (input)="onInputNumbersOnly($event)"
+                />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Takip Mudi No</label>
+                <input 
+                    type="text" 
+                    class="form-control" 
+                    formControlName="takipMudiNo" 
+                    maxlength="50" 
+                    (input)="onInputNumbersOnly($event)"
+                />
+            </div>
+
+            <!-- Açıklama -->
+            <div class="col-12">
+                <label class="form-label">Açıklama</label>
+                <textarea class="form-control" formControlName="aciklama" rows="3"></textarea>
+            </div>
+        </div>
+
+        <div class="mt-4 d-flex gap-2">
+            <button class="btn btn-primary" type="submit" [disabled]="kaydediliyor()">
+                {{ kaydediliyor() ? 'Kaydediliyor...' : (duzenlemeMi ? 'Güncelle' : 'Kaydet') }}
+            </button>
+            <a class="btn btn-outline-secondary" [routerLink]="['/urunler']" [class.disabled]="kaydediliyor()">İptal</a>
+        </div>
+    </form>
+</div>

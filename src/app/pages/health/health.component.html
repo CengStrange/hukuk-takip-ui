@@ -1,0 +1,48 @@
+<mat-card class="m-4">
+  <h2>Sağlık Kontrolleri</h2>
+
+  <div class="grid" style="display:grid;gap:16px;grid-template-columns:1fr 1fr;max-width:900px;">
+    <!-- Ping -->
+    <mat-card>
+      <h3>Ping (Anonim)</h3>
+      <pre>{{ ping | json }}</pre>
+    </mat-card>
+
+    <!-- DB -->
+    <mat-card>
+      <h3>Veritabanı (Anonim)</h3>
+      <ng-container *ngIf="!loading; else spinner">
+        <pre>{{ db | json }}</pre>
+      </ng-container>
+      <ng-template #spinner>
+        <div class="flex-center">
+          <mat-progress-spinner diameter="28" mode="indeterminate"></mat-progress-spinner>
+        </div>
+      </ng-template>
+    </mat-card>
+
+    <!-- Secure -->
+    <mat-card>
+      <h3>Secure (Token Gerekli)</h3>
+      <button mat-raised-button (click)="callSecure()" [disabled]="secureLoading">
+        /api/health/secure
+      </button>
+      <ng-container *ngIf="secureLoading">
+        <mat-progress-spinner diameter="24" mode="indeterminate"></mat-progress-spinner>
+      </ng-container>
+      <pre *ngIf="secureRes">{{ secureRes | json }}</pre>
+    </mat-card>
+
+    <!-- Admin Only -->
+    <mat-card>
+      <h3>Admin Only (Rol: admin)</h3>
+      <button mat-raised-button color="primary" (click)="callAdmin()" [disabled]="adminLoading">
+        /api/health/admin-only
+      </button>
+      <ng-container *ngIf="adminLoading">
+        <mat-progress-spinner diameter="24" mode="indeterminate"></mat-progress-spinner>
+      </ng-container>
+      <pre *ngIf="adminRes">{{ adminRes | json }}</pre>
+    </mat-card>
+  </div>
+</mat-card>

@@ -1,0 +1,117 @@
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="m-0">Müşteriler</h3>
+    <a class="btn btn-primary" [routerLink]="['/musteriler/yeni']">Yeni Müşteri</a>
+  </div>
+
+  <div class="d-flex gap-2 mb-3">
+    <input
+      class="form-control"
+      [(ngModel)]="q"
+      placeholder="Ara (No / Ünvan / Tip)"
+      (keyup.enter)="ara()"
+    />
+    <button class="btn btn-outline-secondary" (click)="ara()">Ara</button>
+    <button class="btn btn-outline-dark" (click)="temizle()">Temizle</button>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-dark table-striped align-middle">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Müşteri No</th>
+          <th>Ad / Ünvan</th>
+          <th>Borçlu Tipi</th>
+          <th class="text-end">İşlemler</th>
+        </tr>
+      </thead>
+
+      <tbody *ngIf="!loading && data as d">
+        <tr *ngFor="let m of d.items; index as i">
+          <td>{{ (page - 1) * pageSize + i + 1 }}</td>
+          <td>{{ m.musteriNo }}</td>
+          <td>{{ m.adiUnvani || '-' }}</td>
+          <td>
+            <span class="badge text-bg-secondary">
+              {{ m.borcluTipi === 1 ? 'Bireysel' : m.borcluTipi === 2 ? 'Kurumsal' : '-' }}
+            </span>
+          </td>
+          <td class="text-end">
+            <a
+              class="btn btn-sm btn-outline-info me-2"
+              [routerLink]="['/musteriler/duzenle', m.id]"
+              >Düzenle</a
+            >
+            <button
+              class="btn btn-sm btn-outline-danger"
+              (click)="delete(m)"
+              [disabled]="silLoadingId === m.id"
+            >
+              {{ silLoadingId === m.id ? 'Siliniyor...' : 'Sil' }}
+            </button>
+          </td>
+        </tr>
+
+        <tr *ngIf="d.items.length === 0">
+          <td colspan="5" class="text-center text-muted py-4">
+            Kayıt bulunamadı.
+          </td>
+        </tr>
+      </tbody>
+
+      <!-- data yoksa ve loading de değilse boş durum -->
+      <tbody *ngIf="!loading && !data">
+        <tr>
+          <td colspan="5" class="text-center text-muted py-4">
+            Kayıt bulunamadı.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="loading" class="text-center text-muted py-4">
+      Yükleniyor…
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-between align-items-center mt-2">
+    <!-- Toplam -->
+    <ng-container *ngIf="data as d; else noDataTotal">
+      <div>Toplam: <strong>{{ d.totalCount }}</strong></div>
+    </ng-container>
+    <ng-template #noDataTotal>
+      <div>Toplam: <strong>0</strong></div>
+    </ng-template>
+
+    <!-- Sayfalama -->
+    <nav>
+      <ul class="pagination m-0">
+        <li class="page-item" [class.disabled]="page === 1">
+          <button class="page-link" (click)="yenile(page - 1)">Önceki</button>
+        </li>
+        <li class="page-item disabled">
+          <span class="page-link">{{ page }} / {{ toplamSayfa }}</span>
+        </li>
+        <li class="page-item" [class.disabled]="page >= toplamSayfa">
+          <button class="page-link" (click)="yenile(page + 1)">Sonraki</button>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Sayfa boyutu -->
+    <div class="d-flex align-items-center gap-2">
+      <label class="text-nowrap">Sayfa Boyutu</label>
+      <select
+        class="form-select"
+        style="width: auto"
+        [(ngModel)]="pageSize"
+        (change)="yenile(1)"
+      >
+        <option [ngValue]="10">10</option>
+        <option [ngValue]="20">20</option>
+        <option [ngValue]="50">50</option>
+      </select>
+    </div>
+  </div>
+</div>

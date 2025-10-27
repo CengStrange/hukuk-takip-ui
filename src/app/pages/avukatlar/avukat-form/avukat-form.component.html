@@ -1,0 +1,204 @@
+<div class="container py-4" [class.opacity-50]="kaydediliyor()">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="m-0">{{ duzenlemeMi ? 'Avukat Düzenle' : 'Yeni Avukat' }}</h3>
+        <a class="btn btn-outline-secondary" [routerLink]="['/avukatlar']">Listeye Dön</a>
+    </div>
+
+    <form [formGroup]="frm" (ngSubmit)="onSubmit()" novalidate>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Adı <span class="text-danger">*</span></label>
+                <input class="form-control" formControlName="adi" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Soyadı <span class="text-danger">*</span></label>
+                <input class="form-control" formControlName="soyadi" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">TCKN</label>
+                <input
+                    type="text"
+                    maxlength="11"
+                    appNumbersOnly
+                    class="form-control" 
+                    formControlName="tckn" 
+                    placeholder="11 haneli TCKN" 
+                />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Vergi Dairesi</label>
+                <input class="form-control" formControlName="vergiDairesi" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Vergi No</label>
+                <input 
+                    type="text"
+                    appNumbersOnly
+                    maxlength="10"
+                    class="form-control" 
+                    formControlName="vergiNo" 
+                    placeholder="10 haneli Vergi No" 
+                />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" formControlName="email" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Cep Telefonu</label>
+                <input 
+                    type="text"
+                    appTelefonMask 
+                    maxlength="13" 
+                    class="form-control"
+                    formControlName="cepTelefonu"
+                    placeholder="543-456-48-86" 
+                />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">İş Telefonu</label>
+                <input 
+                    type="text"
+                    appTelefonMask 
+                    maxlength="13"
+                    class="form-control" 
+                    formControlName="isTelefonu" 
+                    placeholder="123-456-78-90"
+                />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">İş Faks No</label>
+                <input 
+                    type="text" 
+                    appTelefonMask 
+                    maxlength="13"
+                    class="form-control" 
+                    formControlName="isFaxNo" 
+                    placeholder="123-456-78-90"
+                />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Doğum Tarihi</label>
+                <input 
+                    type="date" 
+                    class="form-control" 
+                    formControlName="dogumTarihi"
+                    (keydown)="$event.preventDefault()"
+                    style="cursor: pointer;"
+                />
+            </div>
+
+            <h5 class="mt-4">Adres Bilgileri</h5>
+            <hr class="mt-0">
+            <div class="col-md-4">
+                <label class="form-label">Şehir</label>
+                <select class="form-select" formControlName="sehirId">
+                    <option [ngValue]="null">Seçiniz</option> 
+                    <option *ngFor="let s of (sehirler$ | async)" [ngValue]="s.id">{{ s.ad }}</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">İlçe</label>
+                <select class="form-select" formControlName="ilceId" [disabled]="!frm.controls.sehirId.value">
+                    <option [ngValue]="null">Önce Şehir Seçiniz</option> 
+                    <option *ngFor="let ilce of (ilceler$ | async)" [ngValue]="ilce.id">{{ ilce.ad }}</option>
+                </select>
+            </div>
+            <div class="col-12">
+                <label class="form-label">Tam Adres</label>
+                <textarea class="form-control" formControlName="tamAdres" rows="3"></textarea>
+            </div>
+
+            <h5 class="mt-4">Hesap Bilgileri</h5>
+            <hr class="mt-0">
+            <div class="col-md-4">
+                <label class="form-label">Avans Hesap Şubesi</label>
+                <select class="form-select" formControlName="avansHesapSubeId">
+                    <option [ngValue]="null">Seçiniz</option> 
+                    <option *ngFor="let s of (subeler$ | async)" [ngValue]="s.brmKod">{{ s.brmAd }}</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Avans Hesap No</label>
+                <input class="form-control" formControlName="avansHesapNo" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Vadesiz Hesap Şubesi</label>
+                <select class="form-select" formControlName="vadesizHesapSubeId">
+                    <option [ngValue]="null">Seçiniz</option> 
+                    <option *ngFor="let s of (subeler$ | async)" [ngValue]="s.brmKod">{{ s.brmAd }}</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Vadesiz Hesap No</label>
+                <input class="form-control" formControlName="vadesizHesapNo" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Halkbank Vadesiz IBAN</label>
+                <input 
+                    type="text"
+                    appNumbersOnly 
+                    class="form-control" 
+                    formControlName="halkbankVadesizIbanNo" 
+                    placeholder="Sadece sayılar"
+                />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Diğer Banka IBAN</label>
+                <input 
+                    type="text"
+                    appNumbersOnly 
+                    class="form-control" 
+                    formControlName="digerBankaIbanNo" 
+                    placeholder="Sadece sayılar"
+                />
+            </div>
+
+            <h5 class="mt-4">Diğer Bilgiler</h5>
+            <hr class="mt-0">
+            <div class="col-md-4">
+                <label class="form-label">Avans Limiti</label>
+                <input type="number" class="form-control" formControlName="avansLimiti" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Avukat Tipi</label>
+                <select class="form-select" formControlName="avukatTipi">
+                    <option [ngValue]="null">Seçiniz</option> 
+                    <option value="Anlasmali">Anlaşmalı</option>
+                    <option value="Daimi">Daimi</option>
+                    <option value="DisKaynak">Dış Kaynak</option>
+                </select>
+            </div>
+            <div class="col-12 d-flex flex-wrap gap-3 mt-3">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" formControlName="iletisimVeribanMi">
+                    <label class="form-check-label">İletişim Verilsin Mi?</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" formControlName="dialogdan">
+                    <label class="form-check-label">Dialogdan</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" formControlName="dialogYasal">
+                    <label class="form-check-label">Dialog Yasal</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" formControlName="normal">
+                    <label class="form-check-label">Normal</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" formControlName="hesapAktifMi">
+                    <label class="form-check-label">Hesap Aktif Mi?</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4 d-flex gap-2">
+            <button class="btn btn-primary" type="submit" [disabled]="kaydediliyor()">
+                {{ kaydediliyor() ? 'Kaydediliyor...' : (duzenlemeMi ? 'Güncelle' : 'Kaydet') }}
+            </button>
+            <a class="btn btn-outline-secondary" [routerLink]="['/avukatlar']" [class.disabled]="kaydediliyor()">İptal</a>
+        </div>
+    </form>
+</div>
+

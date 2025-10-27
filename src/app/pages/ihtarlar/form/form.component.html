@@ -1,0 +1,141 @@
+<div class="container py-4" [class.opacity-50]="kaydediliyor()">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="m-0">{{ duzenlemeMi ? 'İhtar Düzenle' : 'Yeni İhtar' }}</h3>
+    <a class="btn btn-outline-secondary" [routerLink]="['/ihtarlar']">Listeye Dön</a>
+  </div>
+
+  <form [formGroup]="frm" (ngSubmit)="onSubmit()" novalidate>
+    <!-- Müşteri -->
+    <div class="mb-3">
+      <label class="form-label">Müşteri</label>
+      <div class="input-group">
+        <input
+          #q
+          class="form-control"
+          placeholder="Müşteri ara..."
+          (input)="araMusteri(q.value)"
+        />
+        <button class="btn btn-outline-secondary" type="button"
+                (click)="musteriAramaSonuclari.set([])">Temizle</button>
+      </div>
+
+      <div class="list-group mt-2" *ngIf="musteriAramaSonuclari().length > 0">
+        <button type="button" class="list-group-item list-group-item-action"
+                *ngFor="let m of musteriAramaSonuclari()"
+                (click)="secMusteri(m)">
+          {{ m.adiUnvani }} <small class="text-muted">{{ m.musteriNo }}</small>
+        </button>
+      </div>
+
+      <div class="form-text" *ngIf="frm.value.musteriId">
+        Seçilen Müşteri ID: <code>{{ frm.value.musteriId }}</code>
+      </div>
+      <div class="text-danger" *ngIf="frm.get('musteriId')?.touched && frm.get('musteriId')?.invalid">
+        Müşteri seçimi zorunludur.
+      </div>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-md-4">
+        <label class="form-label">İhtar Tarihi</label>
+        <input 
+            type="date" 
+            class="form-control" 
+            formControlName="ihtarTarihi" 
+            (keydown)="$event.preventDefault()"
+            style="cursor: pointer;"
+        />
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Süre (Gün)</label>
+        <input 
+            type="number" 
+            class="form-control" 
+            formControlName="ihtarnameSuresiGun" 
+            (input)="onInputNumbersOnly($event)"
+        />
+        <div class="form-text"></div>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">İhtar No</label>
+        <input 
+            type="text" 
+            class="form-control" 
+            formControlName="ihtarNo" 
+            (input)="onInputNumbersOnly($event)"
+        />
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label">Noter Adı</label>
+        <input type="text" class="form-control" formControlName="noterAdi" />
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Yevmiye No</label>
+        <input 
+            type="text" 
+            class="form-control" 
+            formControlName="yevmiyeNo" 
+            (input)="onInputNumbersOnly($event)"
+        />
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label">Tebliğ Tarihi</label>
+        <input 
+            type="date" 
+            class="form-control" 
+            formControlName="tebligTarihi" 
+            (keydown)="$event.preventDefault()"
+            style="cursor: pointer;"
+        />
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Tebliğ Giriş Tarihi</label>
+        <input 
+            type="date" 
+            class="form-control" 
+            formControlName="ihtarTebligGirisTarihi" 
+            (keydown)="$event.preventDefault()"
+            style="cursor: pointer;"
+        />
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Kat Tarihi</label>
+        <input 
+            type="date" 
+            class="form-control" 
+            formControlName="katTarihi" 
+            (keydown)="$event.preventDefault()"
+            style="cursor: pointer;"
+        />
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label">Nakit Tutar</label>
+        <input type="number" step="0.01" class="form-control" formControlName="ihtarnameNakitTutar" />
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Gayri Nakit Tutar</label>
+        <input type="number" step="0.01" class="form-control" formControlName="ihtarnameGayriNakitTutar" />
+      </div>
+
+      <div class="col-12">
+        <label class="form-label">Müşteri Ürünleri</label>
+        <textarea rows="2" class="form-control" formControlName="musteriUrunleri"></textarea>
+      </div>
+      <div class="col-12">
+        <label class="form-label">Açıklama</label>
+        <textarea rows="3" class="form-control" formControlName="aciklama"></textarea>
+      </div>
+    </div>
+
+    <div class="mt-4 d-flex gap-2">
+      <button class="btn btn-primary" type="submit" [disabled]="kaydediliyor()">
+        {{ duzenlemeMi ? 'Güncelle' : 'Kaydet' }}
+      </button>
+      <a class="btn btn-outline-secondary" [routerLink]="['/ihtarlar']">İptal</a>
+    </div>
+  </form>
+</div>
+

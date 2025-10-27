@@ -1,0 +1,155 @@
+<div class="container py-4" [class.opacity-50]="kaydediliyor()">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="m-0">{{ duzenlemeMi ? 'İcra Dosyası Düzenle' : 'Yeni İcra Dosyası' }}</h3>
+        <a class="btn btn-outline-secondary" [routerLink]="['/icra-dosyalari']">Listeye Dön</a>
+    </div>
+
+    <form [formGroup]="frm" (ngSubmit)="onSubmit()" novalidate>
+        <div class="row g-3">
+
+            <div class="col-md-6">
+                <label class="form-label">Dosya No <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="dosyaNo" placeholder="örn: 202312345" (input)="onInputNumbersOnly($event)" />
+                <div class="invalid-feedback d-block" *ngIf="submitted && frm.controls.dosyaNo.invalid">
+                    Dosya No zorunludur.
+                </div>
+            </div>
+            <div class="col-md-6"></div>
+
+            <div class="col-md-6 position-relative">
+                <label class="form-label">Borçlu (Müşteri) <span class="text-danger">*</span></label>
+                <input class="form-control" formControlName="musteriArama" placeholder="Müşteri adı veya no ile ara..." autocomplete="off" />
+                <div class="list-group position-absolute w-100" style="z-index: 1000; max-height: 200px; overflow-y: auto;" *ngIf="musteriAramaSonuclari().length > 0">
+                    <button type="button" class="list-group-item list-group-item-action"
+                            *ngFor="let m of musteriAramaSonuclari()"
+                            (click)="secMusteri(m)">
+                        {{ m.adiUnvani }} ({{ m.musteriNo }})
+                    </button>
+                </div>
+                <div *ngIf="secilenMusteri() as m" class="form-text text-success fw-bold">
+                    Seçildi: {{ m.adiUnvani }}
+                </div>
+                <div class="invalid-feedback d-block" *ngIf="submitted && frm.controls.musteriId.invalid">
+                    Borçlu seçimi zorunludur.
+                </div>
+            </div>
+
+             <div class="col-md-6 position-relative">
+                <label class="form-label">Avukat</label>
+                <input class="form-control" formControlName="avukatArama" placeholder="Avukat adı ile ara..." autocomplete="off" />
+                 <div class="list-group position-absolute w-100" style="z-index: 1000; max-height: 200px; overflow-y: auto;" *ngIf="avukatAramaSonuclari().length > 0">
+                    <button type="button" class="list-group-item list-group-item-action"
+                            *ngFor="let a of avukatAramaSonuclari()"
+                            (click)="secAvukat(a)">
+                        {{ a.adi }} {{ a.soyadi }}
+                    </button>
+                </div>
+                <div *ngIf="secilenAvukat() as a" class="form-text text-success fw-bold">
+                    Seçildi: {{ a.adi }} {{ a.soyadi }}
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">Avukat Tevzi No</label>
+                <input type="text" class="form-control" formControlName="avukatTevziNo" (input)="onInputNumbersOnly($event)" />
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">Takip Tarihi <span class="text-danger">*</span></label>
+                <input type="date" class="form-control" formControlName="takipTarihi" (keydown)="$event.preventDefault()" style="cursor: pointer;" />
+                <div class="invalid-feedback d-block" *ngIf="submitted && frm.controls.takipTarihi.invalid">
+                    Takip Tarihi zorunludur.
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">Takip Tipi <span class="text-danger">*</span></label>
+                <select class="form-select" formControlName="takipTipi">
+                    <option [ngValue]="null">Seçiniz</option>
+                    <option *ngFor="let tip of takipTipleri" [ngValue]="tip[0]">{{ tip[1] }}</option>
+                </select>
+                <div class="invalid-feedback d-block" *ngIf="submitted && frm.controls.takipTipi.invalid">
+                    Takip Tipi zorunludur.
+                </div>
+            </div>
+
+            <h5 class="mt-4">İhtar Bilgileri</h5>
+            <hr class="mt-0">
+
+            <div class="col-md-6">
+                <label class="form-label">İhtar Borçluları</label>
+                <textarea class="form-control" formControlName="ihtarBorclulari" rows="2"></textarea>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">İhtar Konusu Ürünler</label>
+                <textarea class="form-control" formControlName="ihtarKonusuUrunler" rows="2"></textarea>
+            </div>
+
+            <h5 class="mt-4">İcra Müdürlüğü</h5>
+            <hr class="mt-0">
+
+            <div class="col-md-6">
+                <label class="form-label">Şehir</label>
+                <select class="form-select" formControlName="icraMuduruluguSehirId">
+                    <option [ngValue]="null">Seçiniz</option>
+                    <option *ngFor="let s of (sehirler$ | async)" [ngValue]="s.id">{{ s.ad }}</option>
+                </select>
+            </div>
+
+             <div class="col-md-6 position-relative">
+                 <label class="form-label">İcra Müdürlüğü</label>
+                 <input class="form-control"
+                        formControlName="icraMudurluguArama"
+                        placeholder="Daire adı ile ara..."
+                        autocomplete="off"
+                        [readOnly]="!frm.controls.icraMuduruluguSehirId.value"
+                        (focus)="onIcraDairesiFocus()"
+                        (blur)="onIcraDairesiBlur()" />
+
+                 <div class="list-group position-absolute w-100 mt-1"
+                      style="z-index: 900; max-height: 250px; overflow-y: auto; display: none;"
+                      [style.display]="isIcraDairesiDropdownOpen() && icraDairesiAramaSonuclari().length > 0 ? 'block' : 'none'">
+                    <button type="button" class="list-group-item list-group-item-action"
+                            *ngFor="let daire of icraDairesiAramaSonuclari()"
+                            (click)="secIcraDairesi(daire)">
+                        {{ daire.ad }}
+                    </button>
+                 </div>
+
+                 <div *ngIf="secilenIcraDairesi() as daire" class="form-text text-success fw-bold">
+                    Seçildi: {{ daire.ad }}
+                 </div>
+                 <div class="form-text" *ngIf="!frm.controls.icraMuduruluguSehirId.value && !secilenIcraDairesi()">
+                    Lütfen önce şehir seçiniz.
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Mahiyet Kodu</label>
+                <select type="text" class="form-control" formControlName="mahiyetKodu" >
+                    <option [ngValue]="null">Seçiniz</option>
+                    <option *ngFor="let kod of mahiyetKodlari" [ngValue]="kod[0]">{{kod[1]}}</option>
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                 <label class="form-label">Durum <span class="text-danger">*</span></label>
+                 <select class="form-select" formControlName="durum">
+                     <option *ngFor="let durum of icraDurumlari" [ngValue]="durum.key">{{ durum.value }}</option>
+                 </select>
+                  <div class="invalid-feedback d-block" *ngIf="submitted && frm.controls.durum.invalid">
+                    Durum seçimi zorunludur.
+                 </div>
+            </div>
+
+        </div>
+
+        <div class="mt-4 d-flex gap-2">
+            <button class="btn btn-primary" type="submit" [disabled]="kaydediliyor()">
+                {{ kaydediliyor() ? 'Kaydediliyor...' : (duzenlemeMi ? 'Güncelle' : 'Kaydet') }}
+            </button>
+            <a class="btn btn-outline-secondary" [routerLink]="['/icra-dosyalari']" [class.disabled]="kaydediliyor()">İptal</a>
+        </div>
+    </form>
+</div>
+

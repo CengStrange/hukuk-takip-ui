@@ -1,0 +1,152 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3 class="m-0">Dashboard</h3>
+  <span
+    class="badge"
+    [class.text-bg-success]="apiUp()===true"
+    [class.text-bg-danger]="apiUp()===false"
+    [class.text-bg-secondary]="apiUp()===null"
+  >
+    API: {{ apiUp()===true ? 'UP' : apiUp()===false ? 'DOWN' : '...' }}
+  </span>
+</div>
+
+<!-- ===== Üst metrikler (4 kart, tam hizalı) ===== -->
+<div class="row g-3 mb-4 align-items-stretch">
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="card shadow-sm h-100">
+      <div class="card-body d-flex justify-content-between align-items-center">
+        <div>
+          <div class="text-muted">Toplam Avukat</div>
+          <div class="display-6 m-0">{{ avToplam() }}</div>
+        </div>
+        <a class="btn btn-outline-primary" routerLink="/avukatlar">Liste</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="card shadow-sm h-100">
+      <div class="card-body d-flex justify-content-between align-items-center">
+        <div>
+          <div class="text-muted">Toplam Ürün</div>
+          <div class="display-6 m-0">{{ urToplam() }}</div>
+        </div>
+        <a class="btn btn-outline-primary" routerLink="/urunler">Liste</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="card shadow-sm h-100">
+      <div class="card-body d-flex justify-content-between align-items-center">
+        <div>
+          <div class="text-muted">Toplam Müşteri</div>
+          <div class="display-6 m-0">{{ msToplam() }}</div>
+        </div>
+        <a class="btn btn-outline-primary" routerLink="/musteriler">Liste</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- YENİ: Toplam İhtar -->
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="card shadow-sm h-100">
+      <div class="card-body d-flex justify-content-between align-items-center">
+        <div>
+          <div class="text-muted">Toplam İhtar</div>
+          <div class="display-6 m-0">{{ toplamIhtar() }}</div>
+        </div>
+        <a class="btn btn-outline-primary" routerLink="/ihtarlar">Liste</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Alt listeler (4 kart, tam hizalı) ===== -->
+<div class="row g-4 align-items-stretch">
+  <div class="col-12 col-md-6 col-xl-3">
+    <div class="card h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <strong>Son Avukatlar</strong>
+        <a class="btn btn-sm btn-primary" routerLink="/avukatlar/yeni">+ Yeni</a>
+      </div>
+      <ul class="list-group list-group-flush">
+        <li *ngFor="let a of sonAvukatlar" class="list-group-item d-flex justify-content-between">
+          <span class="text-truncate">{{ a.adi }}</span>
+          <span class="text-truncate">{{ a.soyadi }}</span>
+
+          <a class="btn btn-sm btn-outline-secondary" [routerLink]="['/avukatlar/duzenle', a.id]">Düzenle</a>
+        </li>
+        <li *ngIf="sonAvukatlar.length===0" class="list-group-item text-muted text-center">Kayıt yok</li>
+      </ul>
+      <div class="card-footer text-end">
+        <a routerLink="/avukatlar" class="btn btn-sm btn-outline-dark">Tümü</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-md-6 col-xl-3">
+    <div class="card h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <strong>Son Ürünler</strong>
+        <a class="btn btn-sm btn-primary" routerLink="/urunler/yeni">+ Yeni</a>
+      </div>
+      <ul class="list-group list-group-flush">
+        <li *ngIf="sonUrunler.length===0" class="list-group-item text-muted text-center">Kayıt yok</li>
+      </ul>
+      <div class="card-footer text-end">
+        <a routerLink="/urunler" class="btn btn-sm btn-outline-dark">Tümü</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-md-6 col-xl-3">
+    <div class="card h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <strong>Son Müşteriler</strong>
+        <a class="btn btn-sm btn-primary" routerLink="/musteriler/yeni">+ Yeni</a>
+      </div>
+      <ul class="list-group list-group-flush">
+        <li *ngFor="let m of sonMusteriler" class="list-group-item d-flex justify-content-between">
+          <span class="text-truncate">{{ m.musteriNo }} — {{ m.adiUnvani || '—' }}</span>
+          <a class="btn btn-sm btn-outline-secondary" [routerLink]="['/musteriler/duzenle', m.id]">Düzenle</a>
+        </li>
+        <li *ngIf="sonMusteriler.length===0" class="list-group-item text-muted text-center">Kayıt yok</li>
+      </ul>
+      <div class="card-footer text-end">
+        <a routerLink="/musteriler" class="btn btn-sm btn-outline-dark">Tümü</a>
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="col-12 col-md-6 col-xl-3">
+    <div class="card h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <strong>Son İhtarlar</strong>
+        <a class="btn btn-sm btn-primary" [routerLink]="['/ihtarlar/yeni']">+ Yeni</a>
+      </div>
+      <div class="card-body p-0">
+        <table class="table table-sm mb-0" *ngIf="sonIhtarlar().length > 0; else bosIhtar">
+          <tbody>
+            <tr *ngFor="let i of sonIhtarlar()">
+              <td>
+                <div><strong>{{ i.musteriAd }}</strong></div>
+                <div class="small text-muted">{{ i.ihtarTarihi | date:'dd.MM.yyyy' }}</div>
+              </td>
+              <td class="text-end">
+                <span class="badge bg-secondary">{{ i.ihtarNo || '-' }}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <ng-template #bosIhtar>
+          <div class="text-center py-3 text-muted">Kayıt yok</div>
+        </ng-template>
+      </div>
+      <div class="card-footer text-end">
+        <a class="btn btn-outline-secondary btn-sm" [routerLink]="['/ihtarlar']">Tümü</a>
+      </div>
+    </div>
+  </div>
+</div>
