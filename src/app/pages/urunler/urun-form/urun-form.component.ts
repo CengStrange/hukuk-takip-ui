@@ -64,7 +64,7 @@ export default class UrunFormComponent {
       this.kaydediliyor.set(true);
       this.srv.getir(this.id!).pipe(finalize(() => this.kaydediliyor.set(false))).subscribe(urun => {
         this.frm.patchValue({ ...urun });
-        this.secilenMusteri.set({ id: urun.musteriId, adiUnvani: urun.musteriAdi } as MusteriListDto);
+        this.secilenMusteri.set({ id: urun.musteriId, adiUnvani: urun.musteriAdiUnvani } as MusteriListDto);
       });
     }
 
@@ -110,7 +110,6 @@ export default class UrunFormComponent {
     this.kaydediliyor.set(true);
     const formValue = this.frm.getRawValue();
 
-    // Sadece sayı girilen Mudi No alanlarını temizliyoruz
     const payload: UrunKayitDto = {
       musteriId: formValue.musteriId!,
       avukatId: formValue.avukatId || null,

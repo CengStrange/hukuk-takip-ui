@@ -78,6 +78,13 @@ export class MusterilerService {
     );
   }
 
+  // ---------- YENİ EKLENEN METOT ----------
+  /** İhtarı olan tüm müşterileri getirir */
+  ihtarliMusterileriListele(): Observable<MusteriListDto[]> {
+    return this.http.get<MusteriListDto[]>(`${this.baseUrl}/ihtarli-musteriler`);
+  }
+  // ---------- BİTTİ ----------
+
   create(dto: Partial<Musteri>): Observable<{ id: string }> {
     return this.http.post<{ id: string }>(this.baseUrl, dto);
   }
@@ -98,4 +105,3 @@ export class MusterilerService {
     return this.http.get<{ musteriNoTaken: boolean; tcknTaken: boolean; vergiNoTaken: boolean; }>(`${this.baseUrl}/check`, { params });
   }
 }
-

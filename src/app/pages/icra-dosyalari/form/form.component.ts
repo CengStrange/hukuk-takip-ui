@@ -7,6 +7,8 @@ import { IcraDosyalariService, IcraDosyasiKayitDto, TakipTipi, TakipTipiText, Ic
 import { MusterilerService, MusteriListDto } from '../../../services/musteriler.service';
 import { AvukatlarService, AvukatListDto } from '../../../services/avukatlar.service'; 
 import { SozlukService, Sehir, IcraDairesi } from '../../../services/sozluk.service';
+import { UrunlerService, UrunListDto } from '../../../services/urunler.service'; 
+import { UrunTipiText } from '../../../services/urunler.service';
 
 @Component({
   selector: 'app-icra-dosyalari-form',
@@ -23,6 +25,7 @@ export default class IcraDosyalariFormComponent implements OnInit {
   private sozlukSrv = inject(SozlukService);
   private musteriSrv = inject(MusterilerService);
   private avukatSrv = inject(AvukatlarService);
+  private urunlerSrv = inject(UrunlerService); 
 
   kaydediliyor = signal(false);
   duzenlemeMi = false;
@@ -31,9 +34,15 @@ export default class IcraDosyalariFormComponent implements OnInit {
 
   takipTipleri = Object.entries(TakipTipiText);
   icraDurumlari = Object.entries(IcraDurumuText).map(([key, value]) => ({ key: Number(key), value })); 
-  mahiyetKodlari = Object.entries(MahiyetKoduTipiText); // Mahiyet kodları eklendi
+  mahiyetKodlari = Object.entries(MahiyetKoduTipiText);
+  public UrunTipiText = UrunTipiText; 
 
   sehirler$: Observable<Sehir[]> = this.sozlukSrv.sehirler();
+  
+
+  private ihtarliMusteriListesi = signal<MusteriListDto[]>([]); 
+  ihtarliUrunler = signal<UrunListDto[]>([]); 
+
   
   musteriAramaSonuclari = signal<MusteriListDto[]>([]);
   avukatAramaSonuclari = signal<AvukatListDto[]>([]);
@@ -55,11 +64,11 @@ export default class IcraDosyalariFormComponent implements OnInit {
     takipTarihi: [null as string | null, [Validators.required]],
     takipTipi: [null as TakipTipi | null, [Validators.required]],
     ihtarBorclulari: ['', [Validators.maxLength(500)]],
-    ihtarKonusuUrunler: ['', [Validators.maxLength(500)]],
+    ihtarKonusuUrunler: [null as string | null, [Validators.maxLength(500)]], // <-- Tipi güncellendi (string | null)
     icraMuduruluguSehirId: [null as number | null],
     icraMudurlugu: [null as string | null], 
     icraMudurluguArama: [''], 
-    mahiyetKodu: [null as MahiyetKoduTipi | null], // Tip güncellendi
+    mahiyetKodu: [null as MahiyetKoduTipi | null],
     durum: [IcraDurumu.Acik, [Validators.required]] 
   });
 
@@ -69,10 +78,36 @@ export default class IcraDosyalariFormComponent implements OnInit {
   }
 
   ngOnInit() {
+   
+    this.musteriSrv.ihtarliMusterileriListele().subscribe(musteriler => {
+      this.ihtarliMusteriListesi.set(musteriler);
+    });
+
+   
     this.frm.controls.musteriArama.valueChanges.pipe(
-      debounceTime(300), distinctUntilChanged(), filter(term => !!term && term.length >= 2),
-      switchMap(term => this.musteriSrv.listele(term, 1, 10))
-    ).subscribe(res => this.musteriAramaSonuclari.set(res.items));
+      debounceTime(200), 
+      distinctUntilChanged(), 
+      filter(term => typeof term === 'string')
+    ).subscribe(term => {
+      if (!term || term.length < 1) {
+        this.musteriAramaSonuclari.set([]);
+        return;
+      }
+      const kucukTerm = term.toLowerCase();
+      
+     
+      const filtrelenmis = this.ihtarliMusteriListesi().filter(m => {
+      
+        const adEslesmesi = m.adiUnvani ? m.adiUnvani.toLowerCase().includes(kucukTerm) : false;
+     
+        const noEslesmesi = m.musteriNo.toLowerCase().includes(kucukTerm);
+        return adEslesmesi || noEslesmesi;
+      });
+   
+
+      this.musteriAramaSonuclari.set(filtrelenmis.slice(0, 10)); 
+    });
+ 
 
     this.frm.controls.avukatArama.valueChanges.pipe(
       debounceTime(300), distinctUntilChanged(), filter(term => !!term && term.length >= 2),
@@ -108,21 +143,31 @@ export default class IcraDosyalariFormComponent implements OnInit {
         this.frm.patchValue({
           ...data,
           takipTipi: data.takipTipi ?? null, 
-          mahiyetKodu: data.mahiyetKodu ?? null, // Patch value için eklendi
+          mahiyetKodu: data.mahiyetKodu ?? null,
+          ihtarKonusuUrunler: data.ihtarKonusuUrunler ?? null,
           durum: data.durum ?? IcraDurumu.Acik
         });
+
         if (data.musteriId) {
-          this.secilenMusteri.set({ id: data.musteriId, adiUnvani: data.musteriAdi || '...' } as MusteriListDto); 
-           this.frm.controls.musteriArama.setValue(data.musteriAdi || '...');
+          
+          this.urunlerSrv.getIhtarliUrunler(data.musteriId).subscribe(urunler => {
+            this.ihtarliUrunler.set(urunler);
+          });
+          
+          
+       
+          this.secilenMusteri.set({ id: data.musteriId, adiUnvani: data.musteriAdi || '...', musteriNo: '', borcluTipi: 1 } as MusteriListDto); // DTO'yu tamamlama
+          this.frm.controls.musteriArama.setValue(data.musteriAdi || '...');
+          this.frm.controls.ihtarBorclulari.setValue(data.musteriAdi || '...'); 
         }
         if (data.avukatId) {
-           const adSoyadParts = data.avukatAdiSoyadi?.split(' ') || ['', ''];
-           const adi = adSoyadParts[0];
-           const soyadi = adSoyadParts.slice(1).join(' ');
-           this.secilenAvukat.set({ id: data.avukatId, adi: adi, soyadi: soyadi } as AvukatListDto); 
-           this.frm.controls.avukatArama.setValue(`${adi} ${soyadi}`.trim()); 
+            const adSoyadParts = data.avukatAdiSoyadi?.split(' ') || ['', ''];
+            const adi = adSoyadParts[0];
+            const soyadi = adSoyadParts.slice(1).join(' ');
+            this.secilenAvukat.set({ id: data.avukatId, adi: adi, soyadi: soyadi } as AvukatListDto); 
+            this.frm.controls.avukatArama.setValue(`${adi} ${soyadi}`.trim()); 
         }
-         if(data.icraMudurlugu) {
+        if(data.icraMudurlugu) {
             this.frm.controls.icraMudurluguArama.setValue(data.icraMudurlugu);
             this.secilenIcraDairesi.set({ ad: data.icraMudurlugu } as IcraDairesi); 
         }
@@ -135,11 +180,22 @@ export default class IcraDosyalariFormComponent implements OnInit {
     input.value = input.value.replace(/[^0-9]/g, '');
   }
 
+ 
   secMusteri(m: MusteriListDto) {
     this.frm.controls.musteriId.setValue(m.id);
+    this.frm.controls.ihtarBorclulari.setValue(m.adiUnvani); // <-- İhtar borçlusunu otomatik doldur
     this.secilenMusteri.set(m);
     this.frm.controls.musteriArama.setValue(m.adiUnvani, { emitEvent: false });
     this.musteriAramaSonuclari.set([]);
+
+    -
+    this.ihtarliUrunler.set([]); 
+    this.frm.controls.ihtarKonusuUrunler.setValue(null); 
+    
+    this.urunlerSrv.getIhtarliUrunler(m.id).subscribe(urunler => {
+      this.ihtarliUrunler.set(urunler);
+    });
+    
   }
 
   secAvukat(a: AvukatListDto) {
@@ -171,28 +227,29 @@ export default class IcraDosyalariFormComponent implements OnInit {
   }
 
   private triggerIcraSearch(term: string) {
-     const sehirId = this.frm.controls.icraMuduruluguSehirId.value;
-     if (sehirId) {
-       this.sozlukSrv.icraDaireleri({ sehirId: sehirId, q: term || undefined, onlyIcra: true, take: 50 })
-         .subscribe(daireler => this.icraDairesiAramaSonuclari.set(daireler));
-     } else {
-       this.icraDairesiAramaSonuclari.set([]);
-     }
+    const sehirId = this.frm.controls.icraMuduruluguSehirId.value;
+    if (sehirId) {
+      this.sozlukSrv.icraDaireleri({ sehirId: sehirId, q: term || undefined, onlyIcra: true, take: 50 })
+        .subscribe(daireler => this.icraDairesiAramaSonuclari.set(daireler));
+    } else {
+      this.icraDairesiAramaSonuclari.set([]);
+    }
   }
 
   onSubmit() {
     this.submitted = true;
     if (this.frm.invalid || this.kaydediliyor()) {
-       Object.keys(this.frm.controls).forEach(key => {
-        const controlErrors = this.frm.get(key)?.errors;
-        if (controlErrors) console.log('Hatalı Alan:', key, controlErrors);
-       });
+      Object.keys(this.frm.controls).forEach(key => {
+       const controlErrors = this.frm.get(key)?.errors;
+       if (controlErrors) console.log('Hatalı Alan:', key, controlErrors);
+      });
       return;
     }
 
     this.kaydediliyor.set(true);
     const formValue = this.frm.getRawValue();
 
+  
     const payload: IcraDosyasiKayitDto = {
         dosyaNo: formValue.dosyaNo!,
         musteriId: formValue.musteriId!,
@@ -203,7 +260,7 @@ export default class IcraDosyalariFormComponent implements OnInit {
         ihtarBorclulari: formValue.ihtarBorclulari || null,
         ihtarKonusuUrunler: formValue.ihtarKonusuUrunler || null,
         icraMudurlugu: formValue.icraMudurlugu || null, 
-        mahiyetKodu: formValue.mahiyetKodu || null, // Artık enum (string)
+        mahiyetKodu: formValue.mahiyetKodu || null,
         durum: formValue.durum ? Number(formValue.durum) : IcraDurumu.Acik,
     };
 

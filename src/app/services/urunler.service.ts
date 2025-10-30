@@ -41,7 +41,7 @@ export const UrunTipiText: { [key in UrunTipi]: string } = {
 export interface UrunListDto {
     id: string;
     urunTipi: UrunTipi;
-    musteriAdi: string;
+    musteriAdiUnvani: string;
     takipMiktari: number;
     dovizTipi: string;
 }
@@ -90,14 +90,28 @@ export interface SayfaSonucu<T> {
     items: T[];
 }
 
+
+
 @Injectable({ providedIn: 'root' })
 export class UrunlerService {
     private http = inject(HttpClient);
     private baseUrl = '/api/urunler';
 
-    listele(q: string | null, page = 1, pageSize = 10): Observable<SayfaSonucu<UrunListDto>> {
+
+    listele(
+        q: string | null,
+        page = 1,
+        pageSize = 10,
+        musteriId: string | null = null 
+    ): Observable<SayfaSonucu<UrunListDto>> {
+        
         let params = new HttpParams().set('page', page).set('pageSize', pageSize);
         if (q && q.trim()) params = params.set('q', q.trim());
+        
+       
+        if (musteriId) {
+            params = params.set('musteriId', musteriId); 
+        }
 
         return this.http.get<any>(this.baseUrl, { params }).pipe(
             map((res: any): SayfaSonucu<UrunListDto> => ({
@@ -106,6 +120,13 @@ export class UrunlerService {
             }))
         );
     }
+    
+
+    getIhtarliUrunler(musteriId: string): Observable<UrunListDto[]> {
+        let params = new HttpParams().set('musteriId', musteriId);
+        return this.http.get<UrunListDto[]>(`${this.baseUrl}/ihtarli-urunler`, { params });
+    }
+
 
     getir(id: string): Observable<Urun> {
         return this.http.get<Urun>(`${this.baseUrl}/${id}`);
@@ -123,4 +144,3 @@ export class UrunlerService {
         return this.http.delete<void>(`${this.baseUrl}/${id}`);
     }
 }
-

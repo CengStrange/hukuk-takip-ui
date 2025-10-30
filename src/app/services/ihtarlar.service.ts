@@ -7,8 +7,6 @@ import { IhtarListItemDto, IhtarCreateDto, IhtarUpdateDto, PagedResult } from '.
 @Injectable({ providedIn: 'root' })
 export class IhtarlarService {
   private http = inject(HttpClient);
-
-  // Relatif + küçük/ASCII => proxy & interceptor düzgün çalışır
   private base = '/api/Ihtar';
 
   list(q = '', page = 1, pageSize = 10): Observable<PagedResult<IhtarListItemDto>> {

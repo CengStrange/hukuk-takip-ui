@@ -5,10 +5,6 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize, Observable, of, switchMap, startWith } from 'rxjs';
 import { AvukatlarService, AvukatKayitDto, AvukatTipi } from '../../../services/avukatlar.service';
 import { SozlukService, Sehir, Sube, Ilce } from '../../../services/sozluk.service';
-
-// NGX-MASK KALDIRILDI
-
-// 1. İki direktifi de import ediyoruz (Lütfen yolların doğru olduğundan emin olun)
 import { NumbersOnlyDirective } from '../../../numbers-only.directive';
 import { TelefonMaskDirective } from '../../../appTelefonMask';
 
@@ -19,8 +15,6 @@ import { TelefonMaskDirective } from '../../../appTelefonMask';
     CommonModule, 
     ReactiveFormsModule, 
     RouterLink,
-    
-    // 2. NGX-MASK yerine iki direktifimizi ekliyoruz
     NumbersOnlyDirective,
     TelefonMaskDirective 
   ],
@@ -37,7 +31,8 @@ export default class AvukatFormComponent {
   duzenlemeMi = false;
   submitted = false;
   private id: string | null = null;
-  
+
+  AvukatTipiEnum = AvukatTipi;
   avukatTipleri = Object.entries(AvukatTipi);
   sehirler$: Observable<Sehir[]> = this.sozlukSrv.sehirler();
   subeler$: Observable<Sube[]> = this.sozlukSrv.subeler();
@@ -51,7 +46,6 @@ export default class AvukatFormComponent {
     vergiNo: ['', [Validators.pattern(/^\d{10}$/)]],
     email: ['', [Validators.email, Validators.maxLength(200)]],
     dogumTarihi: [null as string | null], 
-    // MaxLength'i kaldırıyoruz, çünkü maske (555-123-45-67) 13 karakterdir
     cepTelefonu: [''],
     isTelefonu: [''],
     isFaxNo: [''],
@@ -107,7 +101,6 @@ export default class AvukatFormComponent {
     this.kaydediliyor.set(true);
     const formValue = this.frm.getRawValue();
 
-    // 3. Maskeli veriyi (örn: 555-123-45-67) API'ye göndermeden önce temizliyoruz
     const cepTelefonuTemiz = (formValue.cepTelefonu || '').replace(/\D/g, '');
     const isTelefonuTemiz = (formValue.isTelefonu || '').replace(/\D/g, '');
     const isFaxNoTemiz = (formValue.isFaxNo || '').replace(/\D/g, '');
@@ -115,9 +108,9 @@ export default class AvukatFormComponent {
     const payload: AvukatKayitDto = {
         adi: formValue.adi!,
         soyadi: formValue.soyadi!,
-        tckn: formValue.tckn || null, // appNumbersOnly kullandığınız için bu zaten temizdir
+        tckn: formValue.tckn || null, 
         vergiDairesi: formValue.vergiDairesi || null,
-        vergiNo: formValue.vergiNo || null, // appNumbersOnly kullandığınız için bu zaten temizdir
+        vergiNo: formValue.vergiNo || null, 
         email: formValue.email || null,
         dogumTarihi: formValue.dogumTarihi,
         cepTelefonu: cepTelefonuTemiz || null,

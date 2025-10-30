@@ -25,7 +25,7 @@
             <tbody>
                 <tr *ngFor="let u of data.items; index as i">
                     <td>{{ (page - 1) * pageSize + i + 1 }}</td>
-                    <td>{{ u.musteriAdi }}</td>
+                    <td>{{ u.musteriAdiUnvani }}</td>
                     <td>{{ getUrunTipiText(u.urunTipi) }}</td>
                     <td>{{ u.takipMiktari | number:'1.2-2' }} {{ u.dovizTipi }}</td>
                     <td class="text-end">

@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 
-// --- ENUMLAR ---
+
 export enum AvukatTipi {
     Sozlesmeli = 'Sözleşmeli',
     Kadrolu = 'Kadrolu',
@@ -11,7 +11,7 @@ export enum AvukatTipi {
 
 export const AvukatTipiText: { [key in AvukatTipi]: string } = {
     [AvukatTipi.Sozlesmeli]: 'Sözleşmeli',
-    [AvukatTipi.Kadrolu]: '<Kadrolu>',
+    [AvukatTipi.Kadrolu]: 'Kadrolu',
     [AvukatTipi.DisKaynak]: 'Dış Kaynak'
 };
 
@@ -67,7 +67,6 @@ export class AvukatlarService {
         let params = new HttpParams().set('page', page).set('pageSize', pageSize);
         if (q && q.trim()) params = params.set('q', q.trim());
 
-        // Backend'den gelen PagedResult'ı frontend'in anladığı SayfaSonucu'na map'liyoruz
         return this.http.get<any>(this.baseUrl, { params }).pipe(
             map((res: any): SayfaSonucu<AvukatListDto> => ({
                 totalCount: res.totalCount ?? 0,

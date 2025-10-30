@@ -67,9 +67,15 @@
             </span>
           </td>
           <td class="text-end">
+            <!-- 
+              ----- DEĞİŞİKLİK BURADA -----
+              Eski Hali: ['/ihtarlar', k.id, 'duzenle']
+              Yeni Hali: ['/ihtarlar/duzenle', k.id]
+              Bu, /ihtarlar/duzenle/123 gibi bir URL oluşturur ve route tanımınızla eşleşir.
+            -->
             <a
               class="btn btn-sm btn-outline-primary me-1"
-              [routerLink]="['/ihtarlar', k.id, 'duzenle']"
+              [routerLink]="['/ihtarlar/duzenle', k.id]"
               >Düzenle</a
             >
             <button

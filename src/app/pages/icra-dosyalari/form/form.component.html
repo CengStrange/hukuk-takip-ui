@@ -18,7 +18,7 @@
 
             <div class="col-md-6 position-relative">
                 <label class="form-label">Borçlu (Müşteri) <span class="text-danger">*</span></label>
-                <input class="form-control" formControlName="musteriArama" placeholder="Müşteri adı veya no ile ara..." autocomplete="off" />
+                <input class="form-control" formControlName="musteriArama" placeholder="İhtarı olan müşteri adı veya no ile ara..." autocomplete="off" />
                 <div class="list-group position-absolute w-100" style="z-index: 1000; max-height: 200px; overflow-y: auto;" *ngIf="musteriAramaSonuclari().length > 0">
                     <button type="button" class="list-group-item list-group-item-action"
                             *ngFor="let m of musteriAramaSonuclari()"
@@ -26,8 +26,9 @@
                         {{ m.adiUnvani }} ({{ m.musteriNo }})
                     </button>
                 </div>
-                <div *ngIf="secilenMusteri() as m" class="form-text text-success fw-bold">
-                    Seçildi: {{ m.adiUnvani }}
+                <div class="form-text" *ngIf="secilenMusteri() && frm.value.musteriId">
+                    <div>Seçilen Müşteri: <strong>{{ secilenMusteri()?.adiUnvani }}</strong></div>
+                    <div>Müşteri ID: <code>{{ frm.value.musteriId }}</code></div>
                 </div>
                 <div class="invalid-feedback d-block" *ngIf="submitted && frm.controls.musteriId.invalid">
                     Borçlu seçimi zorunludur.
@@ -78,12 +79,27 @@
 
             <div class="col-md-6">
                 <label class="form-label">İhtar Borçluları</label>
-                <textarea class="form-control" formControlName="ihtarBorclulari" rows="2"></textarea>
+                <textarea class="form-control" formControlName="ihtarBorclulari" rows="2" [readonly]="true" placeholder="Yukarıdan borçlu (müşteri) seçiniz"></textarea>
             </div>
+
             <div class="col-md-6">
                 <label class="form-label">İhtar Konusu Ürünler</label>
-                <textarea class="form-control" formControlName="ihtarKonusuUrunler" rows="2"></textarea>
+                <select 
+                    class="form-select" 
+                    formControlName="ihtarKonusuUrunler" 
+                    [disabled]="!ihtarliUrunler().length">
+                    
+                    <option [ngValue]="null">
+                        {{ !frm.value.musteriId ? 'Önce borçlu (müşteri) seçiniz' : (ihtarliUrunler().length ? 'Ürün seçiniz...' : 'Bu müşteriye ait ihtarlı ürün bulunamadı') }}
+                    </option>
+                    
+                    <option *ngFor="let urun of ihtarliUrunler()" [value]="urun.id">
+                        {{ UrunTipiText[urun.urunTipi] || 'Bilinmeyen Ürün' }} 
+                        (Takip: {{ urun.takipMiktari | number }} {{ urun.dovizTipi }})
+                    </option>
+                </select>
             </div>
+
 
             <h5 class="mt-4">İcra Müdürlüğü</h5>
             <hr class="mt-0">
@@ -107,8 +123,8 @@
                         (blur)="onIcraDairesiBlur()" />
 
                  <div class="list-group position-absolute w-100 mt-1"
-                      style="z-index: 900; max-height: 250px; overflow-y: auto; display: none;"
-                      [style.display]="isIcraDairesiDropdownOpen() && icraDairesiAramaSonuclari().length > 0 ? 'block' : 'none'">
+                        style="z-index: 900; max-height: 250px; overflow-y: auto; display: none;"
+                        [style.display]="isIcraDairesiDropdownOpen() && icraDairesiAramaSonuclari().length > 0 ? 'block' : 'none'">
                     <button type="button" class="list-group-item list-group-item-action"
                             *ngFor="let daire of icraDairesiAramaSonuclari()"
                             (click)="secIcraDairesi(daire)">
@@ -121,7 +137,7 @@
                  </div>
                  <div class="form-text" *ngIf="!frm.controls.icraMuduruluguSehirId.value && !secilenIcraDairesi()">
                     Lütfen önce şehir seçiniz.
-                </div>
+                 </div>
             </div>
 
             <div class="col-md-6">
@@ -135,11 +151,11 @@
             <div class="col-md-6">
                  <label class="form-label">Durum <span class="text-danger">*</span></label>
                  <select class="form-select" formControlName="durum">
-                     <option *ngFor="let durum of icraDurumlari" [ngValue]="durum.key">{{ durum.value }}</option>
+                      <option *ngFor="let durum of icraDurumlari" [ngValue]="durum.key">{{ durum.value }}</option>
                  </select>
                   <div class="invalid-feedback d-block" *ngIf="submitted && frm.controls.durum.invalid">
                     Durum seçimi zorunludur.
-                 </div>
+                  </div>
             </div>
 
         </div>
@@ -152,4 +168,3 @@
         </div>
     </form>
 </div>
-

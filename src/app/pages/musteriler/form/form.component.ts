@@ -33,7 +33,8 @@ export default class MusteriFormComponent implements OnDestroy {
   private id: string | null = null;
 
   sehirler$: Observable<{ id: number; ad: string }[]> = of([]);
-  ilceler$: Observable<Ilce[]> = of([]);
+  ilceler$: Observable<Ilce[]> =of([]);
+  nufusaKayitliOlduguIl$: Observable<{ id: number; ad: string }[]> = of([]);
   
   musteriAramaSonuclari = signal<MusteriListDto[]>([]);
   private aramaSubject = new Subject<string>();
@@ -108,6 +109,7 @@ export default class MusteriFormComponent implements OnDestroy {
         complete: () => this.kaydediliyor.set(false)
       });
     }
+    this.nufusaKayitliOlduguIl$ = this.sozluk.sehirler();
 
     this.musteriMusteriTipi.valueChanges.subscribe(val => {
       this.applyMusteriTipiValidators(Number(val));
@@ -132,10 +134,6 @@ export default class MusteriFormComponent implements OnDestroy {
     this.aramaSubscription.unsubscribe();
   }
 
-  /**
-   * YENİ EKLENDİ: Input olayını dinleyerek sadece sayısal değerlere izin verir.
-   * HTML tarafında (input)="onInputNumbersOnly($event)" olarak kullanılır.
-   */
   onInputNumbersOnly(event: Event): void {
     const input = event.target as HTMLInputElement;
     input.value = input.value.replace(/[^0-9]/g, '');
@@ -182,8 +180,6 @@ export default class MusteriFormComponent implements OnDestroy {
 
     const formValue = this.frm.getRawValue();
   
-    // Temizleme mantığı zaten (input) olayında yapıldığı için burada
-    // ekstra temizliğe gerek yok, ancak garanti olması iyidir.
     const tcknTemiz = (formValue.tckn || '').replace(/\D/g, '');
     const vergiNoTemiz = (formValue.vergiNo || '').replace(/\D/g, '');
     const sskNoTemiz = (formValue.sskNo || '').replace(/\D/g, '');
@@ -201,6 +197,9 @@ export default class MusteriFormComponent implements OnDestroy {
       borcluTipi: formValue.borcluTipi!,
       musteriMusteriTipi: formValue.musteriMusteriTipi!,
       hayattaMi: formValue.hayattaMi!,
+      sehirId:formValue.sehirId,
+      ilceId:formValue.ilceId,
+      nufusaKayitliOlduguIl:formValue.nufusaKayitliOlduguIl
     };
     
     if (this.duzenlemeMi && this.id) {

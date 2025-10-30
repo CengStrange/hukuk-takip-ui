@@ -71,7 +71,7 @@
             formControlName="kimlikVerilisTarihi" /></div>
 
          <div class="col-md-4"><label class="form-label">Nüfusa Kayıtlı İl</label>
-        <select class="form-select" formControlName="sehirId">
+        <select class="form-select" formControlName="nufusaKayitliOlduguIl">
           <option [ngValue]="null">Seçiniz</option>
           <option *ngFor="let s of (sehirler$ | async)" [ngValue]="s.id">{{ s.ad }}</option>
         </select>

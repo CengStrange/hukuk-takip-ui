@@ -160,13 +160,13 @@
                 <label class="form-label">Avans Limiti</label>
                 <input type="number" class="form-control" formControlName="avansLimiti" />
             </div>
-            <div class="col-md-4">
-                <label class="form-label">Avukat Tipi</label>
-                <select class="form-select" formControlName="avukatTipi">
+           <div class="col-md-4">
+            <label class="form-label">Avukat Tipi</label>
+            <select class="form-select" formControlName="avukatTipi">
                     <option [ngValue]="null">Seçiniz</option> 
-                    <option value="Anlasmali">Anlaşmalı</option>
-                    <option value="Daimi">Daimi</option>
-                    <option value="DisKaynak">Dış Kaynak</option>
+                    <option *ngFor="let tipi of avukatTipleri" [value]="tipi[0]">
+                         {{ tipi[1] }}
+                </option>
                 </select>
             </div>
             <div class="col-12 d-flex flex-wrap gap-3 mt-3">
