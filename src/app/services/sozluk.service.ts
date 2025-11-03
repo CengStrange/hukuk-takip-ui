@@ -1,37 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, shareReplay } from 'rxjs';
-
-// DÜZELTME: Projenin ihtiyaç duyduğu tüm sözlük modelleri,
-// dosya yolu hatalarını önlemek için doğrudan bu serviste tanımlandı.
-
-export interface Sehir {
-    id: number;
-    ad: string;
-}
-
-export interface Sube {
-    brmKod: number;
-    brmAd: string;
-}
+import{Sehir,Ilce,Sube,DavaTuru,IcraDairesi}from'../core/models/sozluk.model';
 
 
-export interface Ilce {
-    id: number;
-    ad: string;
-}
-
-export interface DavaTuru {
-    id: number;
-    ad: string;
-}
-
-export interface IcraDairesi {
-    id: number;
-    ad: string;
-    sehirId: number;
-    sehirAd: string;
-}
 
 type CacheEntry<T> = { ts: number; obs: Observable<T> };
 
@@ -65,7 +37,6 @@ export class SozlukService {
         );
     }
 
-    // GÜNCELLEME: Metot artık arama parametresi (q) alabiliyor.
     ilceler(sehirId: number, q?: string): Observable<Ilce[]> {
         let params = new HttpParams().set('sehirId', String(sehirId));
         if (q && q.trim()) {

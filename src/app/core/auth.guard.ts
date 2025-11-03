@@ -1,4 +1,3 @@
-// src/app/core/auth.guard.ts
 import { inject } from '@angular/core';
 import { CanActivateFn, Router, ActivatedRouteSnapshot } from '@angular/router';
 import { getToken } from './token.util';

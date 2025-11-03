@@ -2,52 +2,74 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { AvukatlarService, AvukatListDto, SayfaSonucu } from '../../../services/avukatlar.service';
+import { AvukatlarService,   } from '../../../services/avukatlar.service';
+import { finalize } from 'rxjs'; 
+import { AvukatListDto, AvukatTipiText,SayfaSonucu } from '../../../core/models/avukat.model';
+
 
 @Component({
-  standalone: true,
-  selector: 'app-avukat-list',
-  imports: [CommonModule, FormsModule, RouterLink],
-  templateUrl: './avukat-list.component.html'
+  standalone: true,
+  selector: 'app-avukat-list',
+  imports: [CommonModule, FormsModule, RouterLink],
+  templateUrl: './avukat-list.component.html'
 })
+
 export default class AvukatListComponent {
-  private srv = inject(AvukatlarService);
+  private srv = inject(AvukatlarService);
 
-  q = '';
-  page = 1;
-  pageSize = 10;
-  data: SayfaSonucu<AvukatListDto> = { totalCount: 0, items: [] };
-  silLoadingId = signal<string | null>(null);
+  public avukatTipiTextMap = AvukatTipiText;
+  public readonly Math = Math;
 
-  get toplamSayfa() {
-    return Math.max(1, Math.ceil(this.data.totalCount / this.pageSize));
-  }
+  q = '';
+  page = 1;
+  pageSize = 10;
+ 
+  data: SayfaSonucu<AvukatListDto> = { totalCount: 0, items: [] };
+  silLoadingId = signal<string | null>(null);
 
-  ngOnInit() {
-    this.yenile(1);
-  }
+ 
+  loading = signal(false);
 
-  yenile(page: number) {
-    this.page = Math.max(1, page);
-    const term = this.q?.trim() || null;
-    this.srv.listele(term, this.page, this.pageSize).subscribe({
-      next: (res) => this.data = res,
-      error: () => this.data = { totalCount: 0, items: [] }
-    });
-  }
+  get toplamSayfa() {
+    return Math.max(1, Math.ceil(this.data.totalCount / this.pageSize));
+  }
 
-  ara() { this.yenile(1); }
-  temizle() { this.q = ''; this.yenile(1); }
+  ngOnInit() {
+    this.yenile(1);
+  }
 
-  sil(a: AvukatListDto) {
-    if (!confirm(`"${a.adi} ${a.soyadi}" kaydını silmek istiyor musunuz?`)) return;
-    this.silLoadingId.set(a.id);
-    this.srv.delete(a.id).subscribe({
-      next: () => {
-        this.silLoadingId.set(null);
-        this.yenile(this.page);
-      },
-      error: () => this.silLoadingId.set(null)
-    });
-  }
+  yenile(page: number) {
+    this.page = Math.max(1, page);
+    const term = this.q?.trim() || null;
+
+    this.loading.set(true); 
+
+    this.srv.listele(term, this.page, this.pageSize).pipe(
+      finalize(() => this.loading.set(false)) 
+    ).subscribe({
+      next: (res) => this.data = res,
+      error: () => this.data = { totalCount: 0, items: [] }
+    });
+  }
+
+  ara() { this.yenile(1); }
+  temizle() { this.q = ''; this.yenile(1); }
+
+  sil(a: AvukatListDto) {
+    if (!confirm(`"${a.adi} ${a.soyadi}" kaydını silmek istiyor musunuz?`)) return;
+    
+    this.silLoadingId.set(a.id);
+    
+    this.srv.delete(a.id).subscribe({
+      next: () => {
+        this.silLoadingId.set(null);
+        this.yenile(this.page);
+      },
+      error: (e) => {
+        this.silLoadingId.set(null);
+        alert('Silme hatası: ' + (e?.error?.message || 'Bilinmeyen hata'));
+      }
+    });
+  }
 }
+

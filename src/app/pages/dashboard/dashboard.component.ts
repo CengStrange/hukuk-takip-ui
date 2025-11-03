@@ -1,14 +1,17 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { AvukatlarService, SayfaSonucu as AvSayfa, AvukatListDto } from '../../services/avukatlar.service';
-import { UrunlerService, SayfaSonucu as UrSayfa, UrunListDto } from '../../services/urunler.service';
-import { MusterilerService, SayfaSonucu as MsSayfa, } from '../../services/musteriler.service';
+import { AvukatlarService,   } from '../../services/avukatlar.service';
+import { UrunlerService,   } from '../../services/urunler.service';
+import { MusterilerService,   } from '../../services/musteriler.service';
 import { HealthService } from '../../services/health.service';
 import { MusteriListDto } from '../../core/models/musteri.model';
 import { IhtarlarService } from '../../services/ihtarlar.service';
 import { IhtarListItemDto } from '../../core/models/ihtar.model';
-
+import { AvukatListDto ,SayfaSonucu as AvSayfa,} from '../../core/models/avukat.model';
+import { UrunListDto } from '../../core/models/urun.model';
+import { SayfaSonucu as UrSayfa } from '../../core/models/urun.model';
+import { SayfaSonucu as MsSayfa } from '../../core/models/musteri.model';
 
 @Component({
   standalone: true,

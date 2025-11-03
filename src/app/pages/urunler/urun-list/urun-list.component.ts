@@ -2,7 +2,10 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { UrunlerService, UrunListDto, SayfaSonucu, UrunTipi } from '../../../services/urunler.service';
+import { UrunlerService} from '../../../services/urunler.service';
+import { finalize } from 'rxjs'; 
+import { UrunListDto, SayfaSonucu, UrunTipiText, } from '../../../core/models/urun.model';
+
 
 @Component({
     standalone: true,
@@ -19,6 +22,10 @@ export default class UrunListComponent implements OnInit {
 
     data: SayfaSonucu<UrunListDto> = { totalCount: 0, items: [] };
     silLoadingId = signal<string | null>(null);
+    loading = signal(false); 
+    
+    public readonly Math = Math; 
+    public urunTipiTextMap = UrunTipiText; 
 
     get toplamSayfa() {
         return Math.max(1, Math.ceil(this.data.totalCount / this.pageSize));
@@ -31,8 +38,14 @@ export default class UrunListComponent implements OnInit {
     yenile(page: number) {
         this.page = Math.max(1, page);
         const term = this.q?.trim() || null;
-        this.srv.listele(term, this.page, this.pageSize).subscribe(res => {
-            this.data = res;
+        
+        this.loading.set(true); 
+        
+        this.srv.listele(term, this.page, this.pageSize).pipe(
+            finalize(() => this.loading.set(false)) 
+        ).subscribe({
+            next: (res) => this.data = res,
+            error: () => this.data = { totalCount: 0, items: [] } 
         });
     }
 
@@ -42,8 +55,12 @@ export default class UrunListComponent implements OnInit {
     }
 
     sil(urun: UrunListDto) {
-        if (!confirm(`"${this.getUrunTipiText(urun.urunTipi)}" ürününü silmek istiyor musunuz?`)) return;
+    
+        const urunAdi = this.urunTipiTextMap[urun.urunTipi] || 'Bilinmeyen Ürün';
+        if (!confirm(`"${urunAdi}" ürününü silmek istiyor musunuz?`)) return;
+        
         this.silLoadingId.set(urun.id);
+        
         this.srv.delete(urun.id).subscribe({
             next: () => {
                 this.silLoadingId.set(null);
@@ -53,7 +70,5 @@ export default class UrunListComponent implements OnInit {
         });
     }
 
-    getUrunTipiText(urunTipi: UrunTipi): string {
-        return UrunTipi[urunTipi]?.replace(/([A-Z])/g, ' $1').trim() ?? "Bilinmeyen";
-    }
+
 }

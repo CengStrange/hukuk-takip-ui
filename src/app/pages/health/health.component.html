@@ -2,13 +2,11 @@
   <h2>Sağlık Kontrolleri</h2>
 
   <div class="grid" style="display:grid;gap:16px;grid-template-columns:1fr 1fr;max-width:900px;">
-    <!-- Ping -->
     <mat-card>
       <h3>Ping (Anonim)</h3>
       <pre>{{ ping | json }}</pre>
     </mat-card>
 
-    <!-- DB -->
     <mat-card>
       <h3>Veritabanı (Anonim)</h3>
       <ng-container *ngIf="!loading; else spinner">
@@ -21,7 +19,6 @@
       </ng-template>
     </mat-card>
 
-    <!-- Secure -->
     <mat-card>
       <h3>Secure (Token Gerekli)</h3>
       <button mat-raised-button (click)="callSecure()" [disabled]="secureLoading">
@@ -33,7 +30,6 @@
       <pre *ngIf="secureRes">{{ secureRes | json }}</pre>
     </mat-card>
 
-    <!-- Admin Only -->
     <mat-card>
       <h3>Admin Only (Rol: admin)</h3>
       <button mat-raised-button color="primary" (click)="callAdmin()" [disabled]="adminLoading">

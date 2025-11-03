@@ -2,11 +2,14 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { debounceTime, distinctUntilChanged, filter, switchMap, finalize, map, Observable } from 'rxjs';
-import { UrunlerService, UrunTipi, UrunKayitDto, UrunTipiText } from '../../../services/urunler.service';
+import { debounceTime, distinctUntilChanged, filter, switchMap, finalize,  Observable } from 'rxjs';
+import { UrunlerService,  } from '../../../services/urunler.service';
 import { SozlukService } from '../../../services/sozluk.service';
-import { MusterilerService, MusteriListDto } from '../../../services/musteriler.service';
-import { AvukatlarService, AvukatListDto } from '../../../services/avukatlar.service';
+import { MusterilerService,  } from '../../../services/musteriler.service';
+import { AvukatlarService,  } from '../../../services/avukatlar.service';
+import { UrunKayitDto, UrunTipi, UrunTipiText } from '../../../core/models/urun.model';
+import { MusteriListDto } from '../../../core/models/musteri.model';
+import { AvukatListDto } from '../../../core/models/avukat.model';
 
 @Component({
   standalone: true,
@@ -55,7 +58,7 @@ export default class UrunFormComponent {
     faizMudiNo: [null as string | null, [Validators.maxLength(50)]],
     takipMudiNo: [null as string | null, [Validators.maxLength(50)]],
   });
-
+  get f() { return this.frm.controls; }
   constructor() {
     this.id = this.route.snapshot.paramMap.get('id');
     this.duzenlemeMi = !!this.id;
@@ -105,6 +108,8 @@ export default class UrunFormComponent {
 
   onSubmit() {
     this.submitted = true;
+    this.frm.markAllAsTouched();
+
     if (this.frm.invalid || this.kaydediliyor()) return;
 
     this.kaydediliyor.set(true);

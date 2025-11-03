@@ -2,13 +2,14 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { MusterilerService, MusteriListDto, SayfaSonucu as Sayfa } from '../../../services/musteriler.service';
+import { MusterilerService} from '../../../services/musteriler.service';
+import { MusteriListDto ,SayfaSonucu} from '../../../core/models/musteri.model';
 
 @Component({
   standalone: true,
   selector: 'app-musteri-list',
-  imports: [CommonModule, FormsModule, RouterLink],
-  templateUrl: './list.component.html',
+  imports: [CommonModule, FormsModule, RouterLink], 
+  templateUrl: './list.component.html', 
 })
 export default class MusteriListComponent {
   private api = inject(MusterilerService);
@@ -19,7 +20,7 @@ export default class MusteriListComponent {
 
 
   loading = false;
-  data: Sayfa<MusteriListDto> = { totalCount: 0, items: [] };
+  data: SayfaSonucu<MusteriListDto> = { totalCount: 0, items: [] };
   silLoadingId: string | null = null;
 
   get toplamSayfa() {
@@ -42,7 +43,7 @@ export default class MusteriListComponent {
         this.data = res;
       },
       error: () => {
-      
+       
         this.data = { totalCount: 0, items: [] };
       },
       complete: () => (this.loading = false),
@@ -66,11 +67,11 @@ export default class MusteriListComponent {
       next: () => {
         this.silLoadingId = null;
         this.yenile(this.page);
-        alert('Silindi.');
+        alert('Silindi.'); 
       },
       error: (e) => {
         this.silLoadingId = null;
-        alert('Silme hatası: ' + (e?.error?.message || e?.message || 'Bilinmeyen bir hata oluştu.'));
+        alert('Silme hatası: ' + (e?.error?.message || e?.message || 'Bilinmeyen bir hata oluştu.')); // Orijinal kodunuzdaki alert bırakıldı
       },
     });
   }

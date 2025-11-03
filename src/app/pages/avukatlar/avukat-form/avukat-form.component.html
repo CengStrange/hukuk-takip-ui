@@ -8,11 +8,25 @@
         <div class="row g-3">
             <div class="col-md-4">
                 <label class="form-label">Adı <span class="text-danger">*</span></label>
-                <input class="form-control" formControlName="adi" />
+                <input class="form-control" 
+                       formControlName="adi"
+                       [class.is-invalid]="f.adi.invalid && (f.adi.touched || submitted)" />
+                <!-- Hata Mesajları -->
+                <div *ngIf="f.adi.invalid && (f.adi.touched || submitted)" class="invalid-feedback">
+                    <div *ngIf="f.adi.errors?.['required']">Adı zorunludur.</div>
+                    <div *ngIf="f.adi.errors?.['maxlength']">En fazla 100 karakter olabilir.</div>
+                </div>
             </div>
             <div class="col-md-4">
                 <label class="form-label">Soyadı <span class="text-danger">*</span></label>
-                <input class="form-control" formControlName="soyadi" />
+                <input class="form-control" 
+                       formControlName="soyadi"
+                       [class.is-invalid]="f.soyadi.invalid && (f.soyadi.touched || submitted)" />
+                <!-- Hata Mesajları -->
+                <div *ngIf="f.soyadi.invalid && (f.soyadi.touched || submitted)" class="invalid-feedback">
+                    <div *ngIf="f.soyadi.errors?.['required']">Soyadı zorunludur.</div>
+                    <div *ngIf="f.soyadi.errors?.['maxlength']">En fazla 100 karakter olabilir.</div>
+                </div>
             </div>
             <div class="col-md-4">
                 <label class="form-label">TCKN</label>
@@ -22,8 +36,13 @@
                     appNumbersOnly
                     class="form-control" 
                     formControlName="tckn" 
-                    placeholder="11 haneli TCKN" 
+                    placeholder="11 haneli TCKN"
+                    [class.is-invalid]="f.tckn.invalid && (f.tckn.touched || submitted)" 
                 />
+                <!-- Hata Mesajları -->
+                <div *ngIf="f.tckn.invalid && (f.tckn.touched || submitted)" class="invalid-feedback">
+                    <div *ngIf="f.tckn.errors?.['pattern']">TCKN 11 haneli rakam olmalıdır.</div>
+                </div>
             </div>
             <div class="col-md-4">
                 <label class="form-label">Vergi Dairesi</label>
@@ -37,12 +56,25 @@
                     maxlength="10"
                     class="form-control" 
                     formControlName="vergiNo" 
-                    placeholder="10 haneli Vergi No" 
+                    placeholder="10 haneli Vergi No"
+                    [class.is-invalid]="f.vergiNo.invalid && (f.vergiNo.touched || submitted)" 
                 />
+                <!-- Hata Mesajları -->
+                <div *ngIf="f.vergiNo.invalid && (f.vergiNo.touched || submitted)" class="invalid-feedback">
+                    <div *ngIf="f.vergiNo.errors?.['pattern']">Vergi No 10 haneli rakam olmalıdır.</div>
+                </div>
             </div>
             <div class="col-md-4">
                 <label class="form-label">Email</label>
-                <input type="email" class="form-control" formControlName="email" />
+                <input type="email" 
+                       class="form-control" 
+                       formControlName="email"
+                       [class.is-invalid]="f.email.invalid && (f.email.touched || submitted)" />
+                <!-- Hata Mesajları -->
+                <div *ngIf="f.email.invalid && (f.email.touched || submitted)" class="invalid-feedback">
+                    <div *ngIf="f.email.errors?.['email']">Geçerli bir e-posta adresi girin.</div>
+                    <div *ngIf="f.email.errors?.['maxlength']">En fazla 200 karakter olabilir.</div>
+                </div>
             </div>
             <div class="col-md-4">
                 <label class="form-label">Cep Telefonu</label>
@@ -106,7 +138,14 @@
             </div>
             <div class="col-12">
                 <label class="form-label">Tam Adres</label>
-                <textarea class="form-control" formControlName="tamAdres" rows="3"></textarea>
+                <textarea class="form-control" 
+                          formControlName="tamAdres" 
+                          rows="3"
+                          [class.is-invalid]="f.tamAdres.invalid && (f.tamAdres.touched || submitted)"></textarea>
+                <!-- Hata Mesajları -->
+                <div *ngIf="f.tamAdres.invalid && (f.tamAdres.touched || submitted)" class="invalid-feedback">
+                    <div *ngIf="f.tamAdres.errors?.['maxlength']">En fazla 500 karakter olabilir.</div>
+                </div>
             </div>
 
             <h5 class="mt-4">Hesap Bilgileri</h5>
@@ -137,55 +176,57 @@
                 <label class="form-label">Halkbank Vadesiz IBAN</label>
                 <input 
                     type="text"
-                    appNumbersOnly 
+                    maxlength="26" 
                     class="form-control" 
                     formControlName="halkbankVadesizIbanNo" 
-                    placeholder="Sadece sayılar"
+                    placeholder="TR000000000000000000000000"
+                    [class.is-invalid]="f.halkbankVadesizIbanNo.invalid && (f.halkbankVadesizIbanNo.touched || submitted)"
                 />
+                <!-- Hata Mesajları -->
+                <div *ngIf="f.halkbankVadesizIbanNo.invalid && (f.halkbankVadesizIbanNo.touched || submitted)" class="invalid-feedback">
+                    <div *ngIf="f.halkbankVadesizIbanNo.errors?.['pattern']">IBAN 'TR' ile başlamalı ve 24 rakamdan oluşmalıdır (Toplam 26 karakter).</div>
+                </div>
             </div>
             <div class="col-md-4">
                 <label class="form-label">Diğer Banka IBAN</label>
                 <input 
                     type="text"
-                    appNumbersOnly 
+                    maxlength="26"
                     class="form-control" 
                     formControlName="digerBankaIbanNo" 
-                    placeholder="Sadece sayılar"
+                    placeholder="TR000000000000000000000000"
+                    [class.is-invalid]="f.digerBankaIbanNo.invalid && (f.digerBankaIbanNo.touched || submitted)"
                 />
+                 <!-- Hata Mesajları -->
+                 <div *ngIf="f.digerBankaIbanNo.invalid && (f.digerBankaIbanNo.touched || submitted)" class="invalid-feedback">
+                    <div *ngIf="f.digerBankaIbanNo.errors?.['pattern']">IBAN 'TR' ile başlamalı ve 24 rakamdan oluşmalıdır (Toplam 26 karakter).</div>
+                </div>
             </div>
 
             <h5 class="mt-4">Diğer Bilgiler</h5>
             <hr class="mt-0">
             <div class="col-md-4">
-                <label class="form-label">Avans Limiti</label>
-                <input type="number" class="form-control" formControlName="avansLimiti" />
+                <label class="form-label">Avans Limiti <span class="text-danger">*</span></label>
+                <input type="number" 
+                       class="form-control" 
+                       formControlName="avansLimiti"
+                       [class.is-invalid]="f.avansLimiti.invalid && (f.avansLimiti.touched || submitted)" />
+                <!-- Hata Mesajları -->
+                <div *ngIf="f.avansLimiti.invalid && (f.avansLimiti.touched || submitted)" class="invalid-feedback">
+                    <div *ngIf="f.avansLimiti.errors?.['required']">Avans Limiti zorunludur.</div>
+                    <div *ngIf="f.avansLimiti.errors?.['min']">Değer 0'dan küçük olamaz.</div>
+                </div>
             </div>
            <div class="col-md-4">
             <label class="form-label">Avukat Tipi</label>
             <select class="form-select" formControlName="avukatTipi">
                     <option [ngValue]="null">Seçiniz</option> 
                     <option *ngFor="let tipi of avukatTipleri" [value]="tipi[0]">
-                         {{ tipi[1] }}
-                </option>
+                        {{ tipi[1] }}
+                    </option>
                 </select>
             </div>
             <div class="col-12 d-flex flex-wrap gap-3 mt-3">
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" formControlName="iletisimVeribanMi">
-                    <label class="form-check-label">İletişim Verilsin Mi?</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" formControlName="dialogdan">
-                    <label class="form-check-label">Dialogdan</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" formControlName="dialogYasal">
-                    <label class="form-check-label">Dialog Yasal</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" formControlName="normal">
-                    <label class="form-check-label">Normal</label>
-                </div>
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" formControlName="hesapAktifMi">
                     <label class="form-check-label">Hesap Aktif Mi?</label>

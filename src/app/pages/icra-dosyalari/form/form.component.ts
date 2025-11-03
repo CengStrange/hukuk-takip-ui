@@ -3,12 +3,20 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize, Observable, of, switchMap, startWith, debounceTime, distinctUntilChanged, filter } from 'rxjs';
-import { IcraDosyalariService, IcraDosyasiKayitDto, TakipTipi, TakipTipiText, IcraDurumu, IcraDurumuText, IcraDosyasi, MahiyetKoduTipi,MahiyetKoduTipiText} from '../../../services/icra-dosyalari.service'; 
-import { MusterilerService, MusteriListDto } from '../../../services/musteriler.service';
-import { AvukatlarService, AvukatListDto } from '../../../services/avukatlar.service'; 
-import { SozlukService, Sehir, IcraDairesi } from '../../../services/sozluk.service';
-import { UrunlerService, UrunListDto } from '../../../services/urunler.service'; 
-import { UrunTipiText } from '../../../services/urunler.service';
+import { IcraDosyalariService, } from '../../../services/icra-dosyalari.service'; 
+import { MusterilerService,  } from '../../../services/musteriler.service';
+import { AvukatlarService,  } from '../../../services/avukatlar.service'; 
+import { SozlukService,   } from '../../../services/sozluk.service';
+import { UrunlerService,  } from '../../../services/urunler.service'; 
+import { TakipTipi, TakipTipiText, IcraDurumu, IcraDurumuText, MahiyetKoduTipi, MahiyetKoduTipiText } from '../../../core/models/icra-dosyasi.model';
+import { MusteriListDto } from '../../../core/models/musteri.model';
+import { AvukatListDto } from '../../../core/models/avukat.model';
+import { IcraDosyasi } from '../../../core/models/icra-dosyasi.model';
+import { UrunListDto } from '../../../core/models/urun.model';
+import { Sehir } from '../../../core/models/sozluk.model';
+import { UrunTipiText } from '../../../core/models/urun.model';
+import { IcraDairesi } from '../../../core/models/sozluk.model';
+import { IcraDosyasiKayitDto } from '../../../core/models/icra-dosyasi.model';
 
 @Component({
   selector: 'app-icra-dosyalari-form',
@@ -72,6 +80,7 @@ export default class IcraDosyalariFormComponent implements OnInit {
     durum: [IcraDurumu.Acik, [Validators.required]] 
   });
 
+  get f() { return this.frm.controls; }
   constructor() {
     this.id = this.route.snapshot.paramMap.get('id'); 
     this.duzenlemeMi = !!this.id;
@@ -238,6 +247,8 @@ export default class IcraDosyalariFormComponent implements OnInit {
 
   onSubmit() {
     this.submitted = true;
+    this.frm.markAllAsTouched();
+    
     if (this.frm.invalid || this.kaydediliyor()) {
       Object.keys(this.frm.controls).forEach(key => {
        const controlErrors = this.frm.get(key)?.errors;

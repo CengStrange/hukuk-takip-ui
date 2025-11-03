@@ -27,13 +27,12 @@ export default class HealthComponent implements OnInit {
   constructor(private hs: HealthService) {}
 
   ngOnInit(): void {
-    // /api/health
+  
     this.hs.ping().subscribe({
       next: r => (this.ping = r),
       error: _ => (this.ping = { ok: false, error: true })
     });
 
-    // /api/health/db
     this.hs.db().subscribe({
       next: r => {
         this.db = r;

@@ -1,50 +1,64 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
-import { IhtarListItemDto, IhtarCreateDto, IhtarUpdateDto, PagedResult } from '../core/models/ihtar.model';
+import { map } from 'rxjs/operators';
+import {
+  Ihtar,
+  IhtarListItemDto,
+  IhtarCreateDto,
+  IhtarUpdateDto,
+  MusteriIhtarDto,
+  PagedResult
+} from '../core/models/ihtar.model';
 
 @Injectable({ providedIn: 'root' })
 export class IhtarlarService {
   private http = inject(HttpClient);
   private base = '/api/Ihtar';
 
-  list(q = '', page = 1, pageSize = 10): Observable<PagedResult<IhtarListItemDto>> {
-    let params = new HttpParams().set('take', pageSize);
-    if (q && q.trim()) params = params.set('q', q.trim());
+  list(q: string = '', page: number = 1, pageSize: number = 10): Observable<PagedResult<IhtarListItemDto>> {
+    
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('pageSize', pageSize.toString());
 
-    return this.http.get<IhtarListItemDto[]>(this.base, { params, observe: 'response' as const }).pipe(
-      map(resp => {
-        const items = resp.body ?? [];
-        const totalHeader = resp.headers.get('X-Total-Count');
-        const total = totalHeader ? Number(totalHeader) : items.length;
+    if (q && q.trim()) {
+      params = params.set('q', q.trim());
+    }
 
+    return this.http.get<any>(this.base, { params }).pipe(
+      map(res => {
         const result: PagedResult<IhtarListItemDto> = {
           page,
           pageSize,
-          total,     
-          totalCount: total, 
-          items
-        } as PagedResult<IhtarListItemDto>;
-
+          total: res.totalCount || res.total || 0,
+          totalCount: res.totalCount || res.total || 0,
+          items: res.items || []
+        };
         return result;
       })
     );
   }
 
-  getById(id: number) {
-    return this.http.get<IhtarCreateDto>(`${this.base}/${id}`);
+  getById(id: number): Observable<Ihtar> {
+    return this.http.get<Ihtar>(`${this.base}/${id}`);
   }
 
-  create(dto: IhtarCreateDto) {
-    return this.http.post<number>(this.base, dto);
+  getMusteriIhtarlari(musteriId: string): Observable<MusteriIhtarDto[]> {
+    const params = new HttpParams().set('musteriId', musteriId);
+    return this.http.get<MusteriIhtarDto[]>(`${this.base}/musteri-ihtarlari`, { params });
   }
 
-  update(id: number, dto: IhtarUpdateDto) {
+  create(dto: IhtarCreateDto): Observable<{ id: number }> {
+    return this.http.post<{ id: number }>(this.base, dto);
+  }
+
+  update(id: number, dto: IhtarUpdateDto): Observable<void> {
     return this.http.put<void>(`${this.base}/${id}`, dto);
   }
 
-  remove(id: number) {
+  remove(id: number): Observable<void> {
     return this.http.delete<void>(`${this.base}/${id}`);
   }
 }
+

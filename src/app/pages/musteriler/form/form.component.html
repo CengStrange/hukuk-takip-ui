@@ -4,49 +4,83 @@
     <a class="btn btn-outline-secondary" [routerLink]="['/musteriler']">Listeye Dön</a>
   </div>
 
+  <!-- novalidate tarayıcının kendi validation'ını kapatır, bizimkiler çalışsın diye -->
   <form [formGroup]="frm" (ngSubmit)="onSubmit()" novalidate>
     <div class="row g-3">
       <div class="col-md-4">
         <label class="form-label">Müşteri No <span class="text-danger">*</span></label>
-        <input class="form-control" formControlName="musteriNo" />
+        <input class="form-control" 
+               formControlName="musteriNo"
+               [class.is-invalid]="f.musteriNo.invalid && (f.musteriNo.touched || submitted)" />
+        <!-- Hata Mesajları -->
+        <div *ngIf="f.musteriNo.invalid && (f.musteriNo.touched || submitted)" class="invalid-feedback">
+          <div *ngIf="f.musteriNo.errors?.['required']">Müşteri No zorunludur.</div>
+          <div *ngIf="f.musteriNo.errors?.['maxlength']">En fazla 50 karakter olabilir.</div>
+        </div>
       </div>
     </div>
     
     <h4 class="mt-4">Demografik Bilgiler</h4><hr>
     <div class="row g-3">
       <div class="col-md-4">
-        <label class="form-label">Adı / Ünvanı</label>
-        <input class="form-control" formControlName="adiUnvani" />
+        <!-- Label'a zorunlu işareti eklendi -->
+        <label class="form-label">Adı / Ünvanı <span class="text-danger">*</span></label> 
+        <input class="form-control" 
+               formControlName="adiUnvani"
+               [class.is-invalid]="f.adiUnvani.invalid && (f.adiUnvani.touched || submitted)" />
+        <!-- Hata Mesajları -->
+        <div *ngIf="f.adiUnvani.invalid && (f.adiUnvani.touched || submitted)" class="invalid-feedback">
+          <div *ngIf="f.adiUnvani.errors?.['required']">Adı / Ünvanı zorunludur.</div>
+        </div>
       </div>
-        <div class="col-md-4"><label class="form-label">Soyadı</label><input class="form-control" formControlName="borcluSoyadi" /></div>
-            <div class="col-md-4">
-              <label class="form-label">TCKN</label>
-              <input
-                type="text"
-                maxlength="11"
-                (input)="onInputNumbersOnly($event)" 
-                class="form-control" 
-                formControlName="tckn" 
-                placeholder="11 haneli TCKN" />
-            </div>
-      <div class="col-md-4"><label class="form-label">Doğum Tarihi</label><input  
-            type="date" 
-            class="form-control" 
-            (keydown)="$event.preventDefault()"    
-            style="cursor: pointer;" 
-            formControlName="kimlikVerilisTarihi" class="form-control" formControlName="dogumTarihi" /></div>
 
-      <div class="col-md-4"><label class="form-label">Cinsiyet</label>
-          <div>
-              <div class="form-check form-check-inline"><input class="form-check-input" type="radio" formControlName="cinsiyet" id="cinsiyetErkek" [value]="1"><label class="form-check-label" for="cinsiyetErkek">Erkek</label></div>
-              <div class="form-check form-check-inline"><input class="form-check-input" type="radio" formControlName="cinsiyet" id="cinsiyetKadin" [value]="2"><label class="form-check-label" for="cinsiyetKadin">Kadın</label></div>
-          </div>
+      <div class="col-md-4">
+        <label class="form-label">Soyadı</label>
+        <input class="form-control" formControlName="borcluSoyadi" />
       </div>
-      <div class="col-md-4"><label class="form-label">Medeni Durum</label>
-          <div>
-              <div class="form-check form-check-inline"><input class="form-check-input" type="radio" formControlName="medeniDurum" id="medeniBekar" [value]="1"><label class="form-check-label" for="medeniBekar">Bekar</label></div>
-              <div class="form-check form-check-inline"><input class="form-check-input" type="radio" formControlName="medeniDurum" id="medeniEvli" [value]="2"><label class="form-check-label" for="medeniEvli">Evli</label></div>
-          </div>
+        
+      <div class="col-md-4">
+        <!-- TCKN Zorunluluğu Müşteri Tipine göre değiştiği için * koymuyoruz -->
+        <label class="form-label">TCKN</label>
+        <input
+          type="text"
+          maxlength="11"
+          (input)="onInputNumbersOnly($event)" 
+          class="form-control" 
+          formControlName="tckn" 
+          placeholder="11 haneli TCKN"
+          [class.is-invalid]="f.tckn.invalid && (f.tckn.touched || submitted)" />
+        <!-- Hata Mesajları -->
+        <div *ngIf="f.tckn.invalid && (f.tckn.touched || submitted)" class="invalid-feedback">
+          <div *ngIf="f.tckn.errors?.['required']">Bireysel müşteri için TCKN zorunludur.</div>
+          <div *ngIf="f.tckn.errors?.['pattern']">TCKN 11 haneli rakam olmalıdır.</div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label">Doğum Tarihi</label>
+        <!-- HATA DÜZELTMESİ: Çift formControlName kaldırıldı -->
+        <input 
+          type="date" 
+          class="form-control" 
+          (keydown)="$event.preventDefault()" 
+          style="cursor: pointer;" 
+          formControlName="dogumTarihi" />
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label">Cinsiyet</label>
+        <div>
+          <div class="form-check form-check-inline"><input class="form-check-input" type="radio" formControlName="cinsiyet" id="cinsiyetErkek" [value]="1"><label class="form-check-label" for="cinsiyetErkek">Erkek</label></div>
+          <div class="form-check form-check-inline"><input class="form-check-input" type="radio" formControlName="cinsiyet" id="cinsiyetKadin" [value]="2"><label class="form-check-label" for="cinsiyetKadin">Kadın</label></div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Medeni Durum</label>
+        <div>
+          <div class="form-check form-check-inline"><input class="form-check-input" type="radio" formControlName="medeniDurum" id="medeniBekar" [value]="1"><label class="form-check-label" for="medeniBekar">Bekar</label></div>
+          <div class="form-check form-check-inline"><input class="form-check-input" type="radio" formControlName="medeniDurum" id="medeniEvli" [value]="2"><label class="form-check-label" for="medeniEvli">Evli</label></div>
+        </div>
       </div>
       <div class="col-md-4"><label class="form-label">Baba Adı</label><input class="form-control" formControlName="babaAdi" /></div>
       <div class="col-md-4"><label class="form-label">Anne Adı</label><input class="form-control" formControlName="anneAdi" /></div>
@@ -54,23 +88,28 @@
 
     <h4 class="mt-4">Kimlik Bilgileri</h4><hr>
     <div class="row g-3">
-        <div class="col-md-4"><label class="form-label">Pasaport Numarası</label>
+      <div class="col-md-4">
+        <label class="form-label">Pasaport Numarası</label>
         <input 
           type="text" 
           maxlength="9" 
           class="form-control" 
           formControlName="pasaportNumarasi"
-          /></div>
+        />
+      </div>
 
-        <div class="col-md-4"><label class="form-label">Kimlik Veriliş Tarihi</label>
-          <input 
-            type="date" 
-            class="form-control" 
-            (keydown)="$event.preventDefault()"    
-            style="cursor: pointer;" 
-            formControlName="kimlikVerilisTarihi" /></div>
+      <div class="col-md-4">
+        <label class="form-label">Kimlik Veriliş Tarihi</label>
+        <input 
+          type="date" 
+          class="form-control" 
+          (keydown)="$event.preventDefault()" 
+          style="cursor: pointer;" 
+          formControlName="kimlikVerilisTarihi" />
+      </div>
 
-         <div class="col-md-4"><label class="form-label">Nüfusa Kayıtlı İl</label>
+      <div class="col-md-4">
+        <label class="form-label">Nüfusa Kayıtlı İl</label>
         <select class="form-select" formControlName="nufusaKayitliOlduguIl">
           <option [ngValue]="null">Seçiniz</option>
           <option *ngFor="let s of (sehirler$ | async)" [ngValue]="s.id">{{ s.ad }}</option>
@@ -80,88 +119,127 @@
 
     <h4 class="mt-4">Adres Bilgileri</h4><hr>
     <div class="row g-3">
-      <div class="col-md-4"><label class="form-label">Şehir</label>
-        <select class="form-select" formControlName="sehirId">
+      <div class="col-md-4">
+        <label class="form-label">Şehir <span class="text-danger">*</span></label>
+        <select class="form-select" 
+                formControlName="sehirId"
+                [class.is-invalid]="f.sehirId.invalid && (f.sehirId.touched || submitted)">
           <option [ngValue]="null">Seçiniz</option>
           <option *ngFor="let s of (sehirler$ | async)" [ngValue]="s.id">{{ s.ad }}</option>
         </select>
+        <!-- Hata Mesajları -->
+        <div *ngIf="f.sehirId.invalid && (f.sehirId.touched || submitted)" class="invalid-feedback">
+          <div *ngIf="f.sehirId.errors?.['required']">Şehir seçimi zorunludur.</div>
+        </div>
       </div>
       
       <div class="col-md-4">
-        <label class="form-label">İlçe</label>
-        <select class="form-select" formControlName="ilceId" [disabled]="!frm.controls.sehirId.value">
+        <label class="form-label">İlçe <span class="text-danger">*</span></label>
+        <select class="form-select" 
+                formControlName="ilceId" 
+                [disabled]="!f.sehirId.value"
+                [class.is-invalid]="f.ilceId.invalid && (f.ilceId.touched || submitted)">
           <option [ngValue]="null">Önce Şehir Seçiniz</option>
           <option *ngFor="let ilce of (ilceler$ | async)" [ngValue]="ilce.id">{{ ilce.ad }}</option>
         </select>
+        <!-- Hata Mesajları -->
+        <div *ngIf="f.ilceId.invalid && (f.ilceId.touched || submitted)" class="invalid-feedback">
+          <div *ngIf="f.ilceId.errors?.['required']">İlçe seçimi zorunludur.</div>
+        </div>
       </div>
       <div class="col-md-4"><label class="form-label">Semt</label><input class="form-control" formControlName="semt" /></div>
     </div>
 
     <h4 class="mt-4">Ek Bilgiler</h4><hr>
     <div class="row g-3">
-        <div class="col-md-4"><label class="form-label">Vergi Dairesi</label><input class="form-control" formControlName="vergiDairesi" /></div>
-        <div class="col-md-4">
-          <label class="form-label">Vergi No</label>
-          <input 
-            type="text"
-            maxlength="10"
-            (input)="onInputNumbersOnly($event)"
-            class="form-control" 
-            formControlName="vergiNo" 
-            placeholder="10 haneli Vergi No"
-          />
+      <div class="col-md-4">
+        <label class="form-label">Vergi Dairesi</label>
+        <input class="form-control" formControlName="vergiDairesi" />
+      </div>
+      <div class="col-md-4">
+        <!-- Vergi No Zorunluluğu Müşteri Tipine göre değiştiği için * koymuyoruz -->
+        <label class="form-label">Vergi No</label>
+        <input 
+          type="text"
+          maxlength="10"
+          (input)="onInputNumbersOnly($event)"
+          class="form-control" 
+          formControlName="vergiNo" 
+          placeholder="10 haneli Vergi No"
+          [class.is-invalid]="f.vergiNo.invalid && (f.vergiNo.touched || submitted)" />
+        <!-- Hata Mesajları -->
+        <div *ngIf="f.vergiNo.invalid && (f.vergiNo.touched || submitted)" class="invalid-feedback">
+          <div *ngIf="f.vergiNo.errors?.['required']">Kurumsal müşteri için Vergi No zorunludur.</div>
+          <div *ngIf="f.vergiNo.errors?.['pattern']">Vergi No 10 haneli rakam olmalıdır.</div>
         </div>
-        <div class="col-md-4">
-          <label class="form-label">SSK No</label>
-          <input 
-            type="text"
-            (input)="onInputNumbersOnly($event)"
-            class="form-control" 
-            formControlName="sskNo" 
-          />
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">SSK No</label>
+        <input 
+          type="text"
+          (input)="onInputNumbersOnly($event)"
+          class="form-control" 
+          formControlName="sskNo" 
+        />
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">SSK İşyeri Numarası</label>
+        <input 
+          type="text"
+          (input)="onInputNumbersOnly($event)"
+          class="form-control" 
+          formControlName="sskIsyeriNumarasi" 
+        />
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Ticaret Sicil No</label>
+        <input 
+          type="text"
+          (input)="onInputNumbersOnly($event)"
+          class="form-control" 
+          formControlName="ticaretSicilNo" 
+        />
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Borçlu Tipi <span class="text-danger">*</span></label>
+        <select class="form-select" 
+                formControlName="borcluTipi"
+                [class.is-invalid]="f.borcluTipi.invalid && (f.borcluTipi.touched || submitted)">
+          <option [ngValue]="1">Asıl Kredi Borçlusu</option>
+          <option [ngValue]="2">Kefil</option>
+          <option [ngValue]="3">Mirasçı</option>
+          <option [ngValue]="4">Ciranta</option>
+          <option [ngValue]="5">Keşideci</option>
+        </select>
+        <!-- Hata Mesajları -->
+        <div *ngIf="f.borcluTipi.invalid && (f.borcluTipi.touched || submitted)" class="invalid-feedback">
+          <div *ngIf="f.borcluTipi.errors?.['required']">Borçlu Tipi zorunludur.</div>
         </div>
-        <div class="col-md-4">
-          <label class="form-label">SSK İşyeri Numarası</label>
-          <input 
-            type="text"
-            (input)="onInputNumbersOnly($event)"
-            class="form-control" 
-            formControlName="sskIsyeriNumarasi" 
-          />
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Müşteri Türü <span class="text-danger">*</span></label>
+        <select class="form-select" 
+                formControlName="musteriMusteriTipi"
+                [class.is-invalid]="f.musteriMusteriTipi.invalid && (f.musteriMusteriTipi.touched || submitted)">
+          <option [ngValue]="1">Bireysel</option>
+          <option [ngValue]="2">Kurumsal</option>
+        </select>
+        <!-- Hata Mesajları -->
+        <div *ngIf="f.musteriMusteriTipi.invalid && (f.musteriMusteriTipi.touched || submitted)" class="invalid-feedback">
+          <div *ngIf="f.musteriMusteriTipi.errors?.['required']">Müşteri Türü zorunludur.</div>
         </div>
-        <div class="col-md-4">
-          <label class="form-label">Ticaret Sicil No</label>
-          <input 
-            type="text"
-            (input)="onInputNumbersOnly($event)"
-            class="form-control" 
-            formControlName="ticaretSicilNo" 
-          />
-        </div>
-        <div class="col-md-4"><label class="form-label">Borçlu Tipi <span class="text-danger">*</span></label>
-             <select class="form-select" formControlName="borcluTipi">
-               <option [ngValue]="1">Asıl Kredi Borçlusu</option>
-               <option [ngValue]="2">Kefil</option>
-               <option [ngValue]="3">Mirasçı</option>
-               <option [ngValue]="4">Ciranta</option>
-               <option [ngValue]="5">Keşideci</option>
-             </select>
-        </div>
-         <div class="col-md-4"><label class="form-label">Müşteri Türü <span class="text-danger">*</span></label>
-            <select class="form-select" formControlName="musteriMusteriTipi">
-              <option [ngValue]="1">Bireysel</option>
-              <option [ngValue]="2">Kurumsal</option>
-            </select>
-        </div>
-        <div class="col-md-4 align-self-end">
-            <label class="form-check"><input type="checkbox" class="form-check-input" formControlName="hayattaMi" /><span class="form-check-label"> Hayatta mı</span></label>
-        </div>
+      </div>
+      <div class="col-md-4 align-self-end">
+        <label class="form-check"><input type="checkbox" class="form-check-input" formControlName="hayattaMi" /><span class="form-check-label"> Hayatta mı</span></label>
+      </div>
     </div>
 
     <div class="mt-4 d-flex gap-2">
-      <button class="btn btn-primary" type="submit" [disabled]="kaydediliyor()">{{ kaydediliyor() ? 'Kaydediliyor...' : (duzenlemeMi ? 'Güncelle' : 'Kaydet') }}</button>
+     
+      <button class="btn btn-primary" type="submit" [disabled]="kaydediliyor()">
+        {{ kaydediliyor() ? 'Kaydediliyor...' : (duzenlemeMi ? 'Güncelle' : 'Kaydet') }}
+      </button>
       <a class="btn btn-outline-secondary" [routerLink]="['/musteriler']" [class.disabled]="kaydediliyor()">İptal</a>
     </div>
   </form>
 </div>
-

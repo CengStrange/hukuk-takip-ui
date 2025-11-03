@@ -2,7 +2,9 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { IcraDosyalariService, IcraDosyasiListItem, SayfaSonucu, IcraDurumuText } from '../../../services/icra-dosyalari.service';
+import { IcraDosyalariService } from '../../../services/icra-dosyalari.service';
+import { IcraDurumuText, TakipTipiText, IcraDosyasiListItem, SayfaSonucu } from '../../../core/models/icra-dosyasi.model';
+import { finalize } from 'rxjs'; 
 
 @Component({
   selector: 'app-icra-dosyalari-list',
@@ -13,14 +15,16 @@ import { IcraDosyalariService, IcraDosyasiListItem, SayfaSonucu, IcraDurumuText 
 export default class IcraDosyalariListComponent {
   private srv = inject(IcraDosyalariService);
 
-  // Enum'dan metin'e çevrim haritasını template'te kullanmak için public yapıyoruz
   public icraDurumuText = IcraDurumuText;
+  public takipTipiText = TakipTipiText; 
+  public readonly Math = Math; 
 
   q = '';
   page = 1;
   pageSize = 10;
   data: SayfaSonucu<IcraDosyasiListItem> = { totalCount: 0, items: [] };
-  silLoadingId = signal<string | null>(null); // ID artık string (Guid)
+  silLoadingId = signal<string | null>(null); 
+  loading = signal(false); 
 
   get toplamSayfa() {
     return Math.max(1, Math.ceil(this.data.totalCount / this.pageSize));
@@ -32,8 +36,13 @@ export default class IcraDosyalariListComponent {
 
   yenile(page: number) {
     this.page = Math.max(1, page);
-    const term = this.q?.trim() || undefined; // null yerine undefined gönderelim
-    this.srv.listele({ q: term, page: this.page, pageSize: this.pageSize }).subscribe({
+    const term = this.q?.trim() || undefined; 
+    
+    this.loading.set(true);
+    
+    this.srv.listele({ q: term, page: this.page, pageSize: this.pageSize }).pipe(
+      finalize(() => this.loading.set(false)) 
+    ).subscribe({
       next: (res) => this.data = res,
       error: () => this.data = { totalCount: 0, items: [] }
     });
@@ -50,7 +59,10 @@ export default class IcraDosyalariListComponent {
         this.silLoadingId.set(null);
         this.yenile(this.page);
       },
-      error: () => this.silLoadingId.set(null)
+      error: (e) => { 
+          this.silLoadingId.set(null);
+          alert('Silme hatası: ' + (e?.error?.message || 'Bilinmeyen hata'));
+      }
     });
   }
 }

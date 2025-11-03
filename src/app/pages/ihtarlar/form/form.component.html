@@ -1,183 +1,213 @@
 <div class="container py-4" [class.opacity-50]="kaydediliyor()">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3 class="m-0">{{ duzenlemeMi ? 'İcra Dosyası Düzenle' : 'Yeni İcra Dosyası' }}</h3>
-        <a class="btn btn-outline-secondary" [routerLink]="['/icra-dosyalari']">Listeye Dön</a>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="m-0">{{ duzenlemeMi ? 'İhtar Düzenle' : 'Yeni İhtar Kaydı' }}</h3>
+    <a class="btn btn-outline-secondary" [routerLink]="['/ihtarlar']">Listeye Dön</a>
+  </div>
+
+  <form [formGroup]="frm" (ngSubmit)="onSubmit()" novalidate>
+    
+    <h4 class="mt-4">Müşteri Bilgisi</h4><hr>
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label">Müşteri <span class="text-danger">*</span></label>
+        
+        @if (!frm.controls.musteriId.value) {
+          <input 
+            type="text" 
+            class="form-control"
+            id="musteriAramaInput"
+            placeholder="Müşteri adı, unvanı veya TCKN ile arayın..."
+            (input)="araMusteri($event)"
+            [class.is-invalid]="submitted && f.musteriId.hasError('required')">
+          
+          @if (musteriAramaSonuclari().length > 0) {
+            <ul class="list-group position-absolute z-3" style="max-height: 200px; overflow-y: auto;">
+              @for (m of musteriAramaSonuclari(); track m.id) {
+                <li class="list-group-item list-group-item-action" (click)="secMusteri(m)">
+                  <strong>{{ m.adiUnvani }}</strong> ({{ m.musteriNo }})
+                </li>
+              }
+            </ul>
+          }
+        }
+
+        @if (frm.controls.musteriId.value) {
+          <div class="input-group">
+            <input type="text" class="form-control" formControlName="musteriSeciliAdi"
+                   [class.is-invalid]="submitted && f.musteriId.hasError('required')">
+            <button class="btn btn-outline-danger" type="button" (click)="temizleMusteri()" [disabled]="duzenlemeMi">Temizle</button>
+          </div>
+          @if (duzenlemeMi) {
+            <small class="form-text text-muted">Müşteri bilgisi düzenleme modunda değiştirilemez.</small>
+          }
+        }
+        
+        @if (submitted && f.musteriId.hasError('required')) {
+          <div class="text-danger small mt-1">Müşteri seçmek zorunludur.</div>
+        }
+      </div>
     </div>
 
-    <form [formGroup]="frm" (ngSubmit)="onSubmit()" novalidate>
-        <div class="row g-3">
+    <h4 class="mt-4">İhtar Detayları</h4><hr>
+    <div class="row g-3">
+      <div class="col-md-4">
+        <label class="form-label">İhtar No</label>
+        <input class="form-control" 
+               formControlName="ihtarNo"
+               [class.is-invalid]="(f.ihtarNo.touched || submitted) && f.ihtarNo.invalid" />
+        @if ((f.ihtarNo.touched || submitted) && f.ihtarNo.invalid) {
+          <div class="text-danger small mt-1">
+            @if (f.ihtarNo.hasError('maxlength')) {
+              <span>En fazla 50 karakter olabilir.</span>
+            }
+          </div>
+        }
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Noter Adı</label>
+        <input class="form-control" 
+               formControlName="noterAdi"
+               [class.is-invalid]="(f.noterAdi.touched || submitted) && f.noterAdi.invalid" />
+        @if ((f.noterAdi.touched || submitted) && f.noterAdi.invalid) {
+          <div class="text-danger small mt-1">
+            @if (f.noterAdi.hasError('maxlength')) {
+              <span>En fazla 100 karakter olabilir.</span>
+            }
+          </div>
+        }
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Yevmiye No</label>
+        <input class="form-control" 
+               formControlName="yevmiyeNo"
+               [class.is-invalid]="(f.yevmiyeNo.touched || submitted) && f.yevmiyeNo.invalid" />
+        @if ((f.yevmiyeNo.touched || submitted) && f.yevmiyeNo.invalid) {
+          <div class="text-danger small mt-1">
+            @if (f.yevmiyeNo.hasError('maxlength')) {
+              <span>En fazla 50 karakter olabilir.</span>
+            }
+          </div>
+        }
+      </div>
 
-            <div class="col-md-6">
-                <label class="form-label">Dosya No <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" formControlName="dosyaNo" placeholder="örn: 202312345" (input)="onInputNumbersOnly($event)" />
-                <div class="invalid-feedback d-block" *ngIf="submitted && frm.controls.dosyaNo.invalid">
-                    Dosya No zorunludur.
-                </div>
-            </div>
-            <div class="col-md-6"></div>
+      <div class="col-md-4">
+        <label class="form-label">İhtar Tarihi <span class="text-danger">*</span></label>
+        <input 
+          type="date" 
+          class="form-control" 
+          (keydown)="$event.preventDefault()" 
+          style="cursor: pointer;"
+          formControlName="ihtarTarihi"
+          [class.is-invalid]="submitted && f.ihtarTarihi.hasError('required')" />
+        @if (submitted && f.ihtarTarihi.hasError('required')) {
+          <div class="text-danger small mt-1">İhtar tarihi zorunludur.</div>
+        }
+      </div>
 
-            <div class="col-md-6 position-relative">
-                <label class="form-label">Borçlu (Müşteri) <span class="text-danger">*</span></label>
-                <input class="form-control" formControlName="musteriArama" placeholder="İhtarı olan müşteri adı veya no ile ara..." autocomplete="off" />
-                <div class="list-group position-absolute w-100" style="z-index: 1000; max-height: 200px; overflow-y: auto;" *ngIf="musteriAramaSonuclari().length > 0">
-                    <button type="button" class="list-group-item list-group-item-action"
-                            *ngFor="let m of musteriAramaSonuclari()"
-                            (click)="secMusteri(m)">
-                        {{ m.adiUnvani }} ({{ m.musteriNo }})
-                    </button>
-                </div>
-                <div class="form-text" *ngIf="secilenMusteri() && frm.value.musteriId">
-                    <div>Seçilen Müşteri: <strong>{{ secilenMusteri()?.adiUnvani }}</strong></div>
-                    <div>Müşteri ID: <code>{{ frm.value.musteriId }}</code></div>
-                </div>
-                <div class="invalid-feedback d-block" *ngIf="submitted && frm.controls.musteriId.invalid">
-                    Borçlu seçimi zorunludur.
-                </div>
-            </div>
+      <div class="col-md-4">
+        <label class="form-label">İhtarname Süresi (Gün)</label>
+        <input 
+          type="number" 
+          class="form-control" 
+          formControlName="ihtarnameSuresiGun" 
+          min="0"
+          [class.is-invalid]="(f.ihtarnameSuresiGun.touched || submitted) && f.ihtarnameSuresiGun.invalid" />
+        @if ((f.ihtarnameSuresiGun.touched || submitted) && f.ihtarnameSuresiGun.invalid) {
+          <div class="text-danger small mt-1">
+            @if (f.ihtarnameSuresiGun.hasError('min')) {
+              <span>Değer 0'dan küçük olamaz.</span>
+            }
+          </div>
+        }
+      </div>
 
-             <div class="col-md-6 position-relative">
-                <label class="form-label">Avukat</label>
-                <input class="form-control" formControlName="avukatArama" placeholder="Avukat adı ile ara..." autocomplete="off" />
-                 <div class="list-group position-absolute w-100" style="z-index: 1000; max-height: 200px; overflow-y: auto;" *ngIf="avukatAramaSonuclari().length > 0">
-                    <button type="button" class="list-group-item list-group-item-action"
-                            *ngFor="let a of avukatAramaSonuclari()"
-                            (click)="secAvukat(a)">
-                        {{ a.adi }} {{ a.soyadi }}
-                    </button>
-                </div>
-                <div *ngIf="secilenAvukat() as a" class="form-text text-success fw-bold">
-                    Seçildi: {{ a.adi }} {{ a.soyadi }}
-                </div>
-            </div>
+      <div class="col-md-4">
+        <label class="form-label">Tebliğ Tarihi</label>
+        <input 
+          type="date" 
+          class="form-control" 
+          (keydown)="$event.preventDefault()" 
+          style="cursor: pointer;"
+          formControlName="tebligTarihi" />
+      </div>
 
-            <div class="col-md-4">
-                <label class="form-label">Avukat Tevzi No</label>
-                <input type="text" class="form-control" formControlName="avukatTevziNo" (input)="onInputNumbersOnly($event)" />
-            </div>
+      <div class="col-md-4">
+        <label class="form-label">İhtar Tebliğ Giriş Tarihi</label>
+        <input 
+          type="date" 
+          class="form-control" 
+          (keydown)="$event.preventDefault()" 
+          style="cursor: pointer;"
+          formControlName="ihtarTebligGirisTarihi" />
+      </div>
 
-            <div class="col-md-4">
-                <label class="form-label">Takip Tarihi <span class="text-danger">*</span></label>
-                <input type="date" class="form-control" formControlName="takipTarihi" (keydown)="$event.preventDefault()" style="cursor: pointer;" />
-                <div class="invalid-feedback d-block" *ngIf="submitted && frm.controls.takipTarihi.invalid">
-                    Takip Tarihi zorunludur.
-                </div>
-            </div>
+      <div class="col-md-4">
+        <label class="form-label">Kat Tarihi</label>
+        <input 
+          type="date" 
+          class="form-control" 
+          (keydown)="$event.preventDefault()" 
+          style="cursor: pointer;"
+          formControlName="katTarihi" />
+      </div>
+    </div>
 
-            <div class="col-md-4">
-                <label class="form-label">Takip Tipi <span class="text-danger">*</span></label>
-                <select class="form-select" formControlName="takipTipi">
-                    <option [ngValue]="null">Seçiniz</option>
-                    <option *ngFor="let tip of takipTipleri" [ngValue]="tip[0]">{{ tip[1] }}</option>
-                </select>
-                <div class="invalid-feedback d-block" *ngIf="submitted && frm.controls.takipTipi.invalid">
-                    Takip Tipi zorunludur.
-                </div>
-            </div>
+    <h4 class="mt-4">Tutar Bilgileri</h4><hr>
+    <div class="row g-3">
+      <div class="col-md-4">
+        <label class="form-label">İhtarname Nakit Tutar <span class="text-danger">*</span></label>
+        <input 
+          type="number" 
+          class="form-control" 
+          formControlName="ihtarnameNakitTutar" 
+          min="0"
+          [class.is-invalid]="(f.ihtarnameNakitTutar.touched || submitted) && f.ihtarnameNakitTutar.invalid" />
+        @if ((f.ihtarnameNakitTutar.touched || submitted) && f.ihtarnameNakitTutar.invalid) {
+          <div class="text-danger small mt-1">
+            @if (f.ihtarnameNakitTutar.hasError('required')) {
+              <span>Nakit Tutar zorunludur.</span>
+            }
+            @if (f.ihtarnameNakitTutar.hasError('min')) {
+              <span>Değer 0'dan küçük olamaz.</span>
+            }
+          </div>
+        }
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">İhtarname Gayri Nakit Tutar <span class="text-danger">*</span></label>
+        <input 
+          type="number" 
+          class="form-control" 
+          formControlName="ihtarnameGayriNakitTutar" 
+          min="0"
+          [class.is-invalid]="(f.ihtarnameGayriNakitTutar.touched || submitted) && f.ihtarnameGayriNakitTutar.invalid" />
+        @if ((f.ihtarnameGayriNakitTutar.touched || submitted) && f.ihtarnameGayriNakitTutar.invalid) {
+          <div class="text-danger small mt-1">
+            @if (f.ihtarnameGayriNakitTutar.hasError('required')) {
+              <span>Gayri Nakit Tutar zorunludur.</span>
+            }
+            @if (f.ihtarnameGayriNakitTutar.hasError('min')) {
+              <span>Değer 0'dan küçük olamaz.</span>
+            }
+          </div>
+        }
+      </div>
+    </div>
+    
+    <h4 class="mt-4">Ek Bilgiler</h4><hr>
+    <div class="row g-3">
+      <div class="col-md-12">
+        <label class="form-label">Müşteri Ürünleri (Sözleşme/Ürün No)</label>
+        <textarea class="form-control" formControlName="musteriUrunleri" rows="3"></textarea>
+      </div>
+    </div>
 
-            <h5 class="mt-4">İhtar Bilgileri</h5>
-            <hr class="mt-0">
+    <div class="mt-4 d-flex gap-2">
+      <button class="btn btn-primary" type="submit" [disabled]="kaydediliyor()">
+        {{ kaydediliyor() ? 'Kaydediliyor...' : (duzenlemeMi ? 'Güncelle' : 'Kaydet') }}
+      </button>
+      <a class="btn btn-outline-secondary" [routerLink]="['/ihtarlar']" [class.disabled]="kaydediliyor()">İptal</a>
+    </div>
 
-            <div class="col-md-6">
-                <label class="form-label">İhtar Seçimi</label>
-                <select 
-                    class="form-select" 
-                    formControlName="ihtarId" 
-                    (change)="onIhtarSelect($event)"
-                    [disabled]="!musteriIhtarlari().length">
-                    <option [ngValue]="null">
-                        {{ !frm.value.musteriId ? 'Önce borçlu seçiniz' : (musteriIhtarlari().length ? 'İhtar seçiniz...' : 'Müşteriye ait ihtar bulunamadı') }}
-                    </option>
-                    <option *ngFor="let ihtar of musteriIhtarlari()" [ngValue]="ihtar.id">
-                        {{ ihtar.ihtarTarihi | date:'dd.MM.yyyy' }} - (No: {{ ihtar.ihtarNo || ihtar.yevmiyeNo || 'Bilinmiyor' }})
-                    </option>
-                </select>
-            </div>
-
-            <div class="col-md-6">
-                <label class="form-label">İhtar Konusu Ürün</label>
-                <select 
-                    class="form-select" 
-                    formControlName="ihtarKonusuUrunler" 
-                    [disabled]="!ihtarliUrunler().length">
-                    
-                    <option [ngValue]="null">
-                        {{ !frm.value.ihtarId ? 'Önce ihtar seçiniz' : (ihtarliUrunler().length ? 'Ürün seçiniz...' : 'İhtara bağlı ürün bulunamadı') }}
-                    </option>
-                    
-                    <option *ngFor="let urun of ihtarliUrunler()" [value]="urun.id">
-                        {{ UrunTipiText[urun.urunTipi] || 'Bilinmeyen Ürün' }} 
-                        (Takip: {{ urun.takipMiktari | number }} {{ urun.dovizTipi }})
-                    </option>
-                </select>
-            </div>
-
-
-
-            <h5 class="mt-4">İcra Müdürlüğü</h5>
-            <hr class="mt-0">
-
-            <div class="col-md-6">
-                <label class="form-label">Şehir</label>
-                <select class="form-select" formControlName="icraMuduruluguSehirId">
-                    <option [ngValue]="null">Seçiniz</option>
-                    <option *ngFor="let s of (sehirler$ | async)" [ngValue]="s.id">{{ s.ad }}</option>
-                </select>
-            </div>
-
-             <div class="col-md-6 position-relative">
-                 <label class="form-label">İcra Müdürlüğü</label>
-                 <input class="form-control"
-                        formControlName="icraMudurluguArama"
-                        placeholder="Daire adı ile ara..."
-                        autocomplete="off"
-                        [readOnly]="!frm.controls.icraMuduruluguSehirId.value"
-                        (focus)="onIcraDairesiFocus()"
-                        (blur)="onIcraDairesiBlur()" />
-
-                 <div class="list-group position-absolute w-100 mt-1"
-                         style="z-index: 900; max-height: 250px; overflow-y: auto; display: none;"
-                         [style.display]="isIcraDairesiDropdownOpen() && icraDairesiAramaSonuclari().length > 0 ? 'block' : 'none'">
-                    <button type="button" class="list-group-item list-group-item-action"
-                            *ngFor="let daire of icraDairesiAramaSonuclari()"
-                            (click)="secIcraDairesi(daire)">
-                        {{ daire.ad }}
-                    </button>
-                </div>
-
-                 <div *ngIf="secilenIcraDairesi() as daire" class="form-text text-success fw-bold">
-                    Seçildi: {{ daire.ad }}
-                </div>
-                 <div class="form-text" *ngIf="!frm.controls.icraMuduruluguSehirId.value && !secilenIcraDairesi()">
-                    Lütfen önce şehir seçiniz.
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <label class="form-label">Mahiyet Kodu</label>
-                <select type="text" class="form-control" formControlName="mahiyetKodu" >
-                    <option [ngValue]="null">Seçiniz</option>
-                    <option *ngFor="let kod of mahiyetKodlari" [ngValue]="kod[0]">{{kod[1]}}</option>
-                </select>
-            </div>
-
-            <div class="col-md-6">
-                 <label class="form-label">Durum <span class="text-danger">*</span></label>
-                 <select class="form-select" formControlName="durum">
-                       <option *ngFor="let durum of icraDurumlari" [ngValue]="durum.key">{{ durum.value }}</option>
-                 </select>
-                 <div class="invalid-feedback d-block" *ngIf="submitted && frm.controls.durum.invalid">
-                    Durum seçimi zorunludur.
-                 </div>
-            </div>
-
-        </div>
-
-        <div class="mt-4 d-flex gap-2">
-            <button class="btn btn-primary" type="submit" [disabled]="kaydediliyor()">
-                {{ kaydediliyor() ? 'Kaydediliyor...' : (duzenlemeMi ? 'Güncelle' : 'Kaydet') }}
-            </button>
-            <a class="btn btn-outline-secondary" [routerLink]="['/icra-dosyalari']" [class.disabled]="kaydediliyor()">İptal</a>
-        </div>
-    </form>
+  </form>
 </div>
-

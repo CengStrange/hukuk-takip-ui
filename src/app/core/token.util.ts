@@ -12,7 +12,6 @@ export function clearToken(): void {
   localStorage.removeItem(TOKEN_KEY);
 }
 
-/** JWT payload decode (sadece browser tarafında kullanılmalı) */
 export function getJwtPayload<T = any>(): T | null {
   const t = getToken();
   if (!t) return null;

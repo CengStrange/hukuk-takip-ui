@@ -9,16 +9,26 @@
 
             <div class="col-md-6">
                 <label class="form-label">Dosya No <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" formControlName="dosyaNo" placeholder="örn: 202312345" (input)="onInputNumbersOnly($event)" />
-                <div class="invalid-feedback d-block" *ngIf="submitted && frm.controls.dosyaNo.invalid">
-                    Dosya No zorunludur.
+                <input type="text" 
+                       class="form-control" 
+                       formControlName="dosyaNo" 
+                       placeholder="örn: 202312345" 
+                       (input)="onInputNumbersOnly($event)"
+                       [class.is-invalid]="(f.dosyaNo.touched || submitted) && f.dosyaNo.invalid" />
+                <div *ngIf="(f.dosyaNo.touched || submitted) && f.dosyaNo.invalid" class="invalid-feedback">
+                    <div *ngIf="f.dosyaNo.errors?.['required']">Dosya No zorunludur.</div>
+                    <div *ngIf="f.dosyaNo.errors?.['maxlength']">En fazla 50 karakter olabilir.</div>
                 </div>
             </div>
             <div class="col-md-6"></div>
 
             <div class="col-md-6 position-relative">
                 <label class="form-label">Borçlu (Müşteri) <span class="text-danger">*</span></label>
-                <input class="form-control" formControlName="musteriArama" placeholder="İhtarı olan müşteri adı veya no ile ara..." autocomplete="off" />
+                <input class="form-control" 
+                       formControlName="musteriArama" 
+                       placeholder="İhtarı olan müşteri adı veya no ile ara..." 
+                       autocomplete="off"
+                       [class.is-invalid]="(f.musteriId.touched || submitted) && f.musteriId.invalid" />
                 <div class="list-group position-absolute w-100" style="z-index: 1000; max-height: 200px; overflow-y: auto;" *ngIf="musteriAramaSonuclari().length > 0">
                     <button type="button" class="list-group-item list-group-item-action"
                             *ngFor="let m of musteriAramaSonuclari()"
@@ -30,7 +40,7 @@
                     <div>Seçilen Müşteri: <strong>{{ secilenMusteri()?.adiUnvani }}</strong></div>
                     <div>Müşteri ID: <code>{{ frm.value.musteriId }}</code></div>
                 </div>
-                <div class="invalid-feedback d-block" *ngIf="submitted && frm.controls.musteriId.invalid">
+                <div class="invalid-feedback d-block" *ngIf="submitted && f.musteriId.invalid">
                     Borçlu seçimi zorunludur.
                 </div>
             </div>
@@ -52,24 +62,38 @@
 
             <div class="col-md-4">
                 <label class="form-label">Avukat Tevzi No</label>
-                <input type="text" class="form-control" formControlName="avukatTevziNo" (input)="onInputNumbersOnly($event)" />
+                <input type="text" 
+                       class="form-control" 
+                       formControlName="avukatTevziNo" 
+                       (input)="onInputNumbersOnly($event)"
+                       [class.is-invalid]="(f.avukatTevziNo.touched || submitted) && f.avukatTevziNo.invalid" />
+                <div *ngIf="(f.avukatTevziNo.touched || submitted) && f.avukatTevziNo.invalid" class="invalid-feedback">
+                    <div *ngIf="f.avukatTevziNo.errors?.['maxlength']">En fazla 50 karakter olabilir.</div>
+                </div>
             </div>
 
             <div class="col-md-4">
                 <label class="form-label">Takip Tarihi <span class="text-danger">*</span></label>
-                <input type="date" class="form-control" formControlName="takipTarihi" (keydown)="$event.preventDefault()" style="cursor: pointer;" />
-                <div class="invalid-feedback d-block" *ngIf="submitted && frm.controls.takipTarihi.invalid">
+                <input type="date" 
+                       class="form-control" 
+                       formControlName="takipTarihi" 
+                       (keydown)="$event.preventDefault()" 
+                       style="cursor: pointer;"
+                       [class.is-invalid]="(f.takipTarihi.touched || submitted) && f.takipTarihi.invalid" />
+                <div class="invalid-feedback d-block" *ngIf="submitted && f.takipTarihi.invalid">
                     Takip Tarihi zorunludur.
                 </div>
             </div>
 
             <div class="col-md-4">
                 <label class="form-label">Takip Tipi <span class="text-danger">*</span></label>
-                <select class="form-select" formControlName="takipTipi">
+                <select class="form-select" 
+                        formControlName="takipTipi"
+                        [class.is-invalid]="(f.takipTipi.touched || submitted) && f.takipTipi.invalid">
                     <option [ngValue]="null">Seçiniz</option>
                     <option *ngFor="let tip of takipTipleri" [ngValue]="tip[0]">{{ tip[1] }}</option>
                 </select>
-                <div class="invalid-feedback d-block" *ngIf="submitted && frm.controls.takipTipi.invalid">
+                <div class="invalid-feedback d-block" *ngIf="submitted && f.takipTipi.invalid">
                     Takip Tipi zorunludur.
                 </div>
             </div>
@@ -79,7 +103,15 @@
 
             <div class="col-md-6">
                 <label class="form-label">İhtar Borçluları</label>
-                <textarea class="form-control" formControlName="ihtarBorclulari" rows="2" [readonly]="true" placeholder="Yukarıdan borçlu (müşteri) seçiniz"></textarea>
+                <textarea class="form-control" 
+                          formControlName="ihtarBorclulari" 
+                          rows="2" 
+                          [readonly]="true" 
+                          placeholder="Yukarıdan borçlu (müşteri) seçiniz"
+                          [class.is-invalid]="(f.ihtarBorclulari.touched || submitted) && f.ihtarBorclulari.invalid"></textarea>
+                <div *ngIf="(f.ihtarBorclulari.touched || submitted) && f.ihtarBorclulari.invalid" class="invalid-feedback">
+                    <div *ngIf="f.ihtarBorclulari.errors?.['maxlength']">En fazla 500 karakter olabilir.</div>
+                </div>
             </div>
 
             <div class="col-md-6">
@@ -87,7 +119,8 @@
                 <select 
                     class="form-select" 
                     formControlName="ihtarKonusuUrunler" 
-                    [disabled]="!ihtarliUrunler().length">
+                    [disabled]="!ihtarliUrunler().length"
+                    [class.is-invalid]="(f.ihtarKonusuUrunler.touched || submitted) && f.ihtarKonusuUrunler.invalid">
                     
                     <option [ngValue]="null">
                         {{ !frm.value.musteriId ? 'Önce borçlu (müşteri) seçiniz' : (ihtarliUrunler().length ? 'Ürün seçiniz...' : 'Bu müşteriye ait ihtarlı ürün bulunamadı') }}
@@ -98,6 +131,9 @@
                         (Takip: {{ urun.takipMiktari | number }} {{ urun.dovizTipi }})
                     </option>
                 </select>
+                <div *ngIf="(f.ihtarKonusuUrunler.touched || submitted) && f.ihtarKonusuUrunler.invalid" class="invalid-feedback">
+                    <div *ngIf="f.ihtarKonusuUrunler.errors?.['maxlength']">En fazla 500 karakter olabilir.</div>
+                </div>
             </div>
 
 
@@ -138,7 +174,7 @@
                  <div class="form-text" *ngIf="!frm.controls.icraMuduruluguSehirId.value && !secilenIcraDairesi()">
                     Lütfen önce şehir seçiniz.
                  </div>
-            </div>
+             </div>
 
             <div class="col-md-6">
                 <label class="form-label">Mahiyet Kodu</label>
@@ -150,13 +186,15 @@
 
             <div class="col-md-6">
                  <label class="form-label">Durum <span class="text-danger">*</span></label>
-                 <select class="form-select" formControlName="durum">
-                      <option *ngFor="let durum of icraDurumlari" [ngValue]="durum.key">{{ durum.value }}</option>
+                 <select class="form-select" 
+                         formControlName="durum"
+                         [class.is-invalid]="(f.durum.touched || submitted) && f.durum.invalid">
+                       <option *ngFor="let durum of icraDurumlari" [ngValue]="durum.key">{{ durum.value }}</option>
                  </select>
-                  <div class="invalid-feedback d-block" *ngIf="submitted && frm.controls.durum.invalid">
+                  <div class="invalid-feedback d-block" *ngIf="submitted && f.durum.invalid">
                     Durum seçimi zorunludur.
                   </div>
-            </div>
+             </div>
 
         </div>
 

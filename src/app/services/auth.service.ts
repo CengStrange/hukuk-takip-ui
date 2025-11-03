@@ -49,8 +49,6 @@ export class AuthService {
       return null;
     }
   }
-
-  /** Kullanıcı giriş yapmış mı kontrolü */
   get isLoggedIn(): boolean {
     const u = this.currentUser;
     if (!u) return false;

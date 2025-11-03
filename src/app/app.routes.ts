@@ -59,12 +59,7 @@ export const routes: Routes = [
       import('./pages/ihtarlar/form/form.component').then(m => m.default),
   },
 
-  {
-    path: 'health',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./pages/health/health.component').then(m => m.default),
-  },
+  
   {
     path: 'admin',
     canActivate: [authGuard],
@@ -104,6 +99,7 @@ export const routes: Routes = [
   },
   {
   path: 'icra-dosyalari',
+  canActivate: [authGuard], 
   children: [
     {
       path: '',
@@ -147,6 +143,7 @@ export const routes: Routes = [
     ],
   },
 
-  { path: '', pathMatch: 'full', redirectTo: 'home' },
-  { path: '**', redirectTo: 'home' },
+
+  { path: '', pathMatch: 'full', redirectTo: 'login' },
+  { path: '**', redirectTo: 'login' },
 ];

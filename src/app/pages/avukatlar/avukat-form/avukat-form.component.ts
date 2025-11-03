@@ -3,10 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize, Observable, of, switchMap, startWith } from 'rxjs';
-import { AvukatlarService, AvukatKayitDto, AvukatTipi } from '../../../services/avukatlar.service';
-import { SozlukService, Sehir, Sube, Ilce } from '../../../services/sozluk.service';
+import { AvukatlarService, } from '../../../services/avukatlar.service';
+import { SozlukService } from '../../../services/sozluk.service';
 import { NumbersOnlyDirective } from '../../../numbers-only.directive';
 import { TelefonMaskDirective } from '../../../appTelefonMask';
+import { AvukatKayitDto, AvukatTipi } from '../../../core/models/avukat.model';
+import { Sehir, Ilce, Sube } from '../../../core/models/sozluk.model';
 
 @Component({
   standalone: true,
@@ -56,16 +58,14 @@ export default class AvukatFormComponent {
     avansHesapNo: ['', [Validators.maxLength(50)]],
     vadesizHesapSubeId: [null as number | null],
     vadesizHesapNo: ['', [Validators.maxLength(50)]],
-    halkbankVadesizIbanNo: ['', [Validators.maxLength(34)]],
-    digerBankaIbanNo: ['', [Validators.maxLength(34)]],
+    halkbankVadesizIbanNo: ['', [Validators.maxLength(26), Validators.pattern(/^TR\d{24}$/)]],
+    digerBankaIbanNo: ['', [Validators.maxLength(26), Validators.pattern(/^TR\d{24}$/)]],
     avansLimiti: [0, [Validators.required, Validators.min(0)]],
     avukatTipi: [null as AvukatTipi | null],
-    iletisimVeribanMi: [false],
-    dialogdan: [false],
-    dialogYasal: [false],
-    normal: [false],
+   
     hesapAktifMi: [true]
   });
+  get f() { return this.frm.controls; }
 
   constructor() {
     this.id = this.route.snapshot.paramMap.get('id');
@@ -123,14 +123,10 @@ export default class AvukatFormComponent {
         avansHesapNo: formValue.avansHesapNo || null,
         vadesizHesapSubeId: formValue.vadesizHesapSubeId,
         vadesizHesapNo: formValue.vadesizHesapNo || null,
-        halkbankVadesizIbanNo: (formValue.halkbankVadesizIbanNo || '').replace(/\D/g, '') || null,
-        digerBankaIbanNo: (formValue.digerBankaIbanNo || '').replace(/\D/g, '') || null,
+        halkbankVadesizIbanNo: formValue.halkbankVadesizIbanNo || null,
+        digerBankaIbanNo: formValue.digerBankaIbanNo || null,
         avansLimiti: Number(formValue.avansLimiti),
         avukatTipi: formValue.avukatTipi,
-        iletisimVeribanMi: formValue.iletisimVeribanMi ?? false,
-        dialogdan: formValue.dialogdan ?? false,
-        dialogYasal: formValue.dialogYasal ?? false,
-        normal: formValue.normal ?? false,
         hesapAktifMi: formValue.hesapAktifMi ?? true,
     };
 

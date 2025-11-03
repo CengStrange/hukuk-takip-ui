@@ -9,7 +9,11 @@
 
             <div class="col-md-4">
                 <label class="form-label">Borçlu <span class="text-danger">*</span></label>
-                <input class="form-control" formControlName="musteriArama" placeholder="Müşteri adı veya no ile ara..." autocomplete="off" />
+                <input class="form-control" 
+                       formControlName="musteriArama" 
+                       placeholder="Müşteri adı veya no ile ara..." 
+                       autocomplete="off"
+                       [class.is-invalid]="f.musteriId.invalid && (f.musteriId.touched || submitted)" />
                 <div class="list-group position-absolute w-auto" *ngIf="musteriAramaSonuclari().length > 0">
                     <button type="button" class="list-group-item list-group-item-action" *ngFor="let m of musteriAramaSonuclari()" (click)="secMusteri(m)">
                         {{ m.adiUnvani }} ({{ m.musteriNo }})
@@ -18,7 +22,8 @@
                 <div *ngIf="secilenMusteri() as m" class="form-text text-success">
                     Seçildi: {{ m.adiUnvani }}
                 </div>
-                <div class="invalid-feedback d-block" *ngIf="submitted && frm.controls.musteriId.invalid">
+                <!-- Hata Mesajı -->
+                <div *ngIf="f.musteriId.invalid && (f.musteriId.touched || submitted)" class="invalid-feedback">
                     Borçlu seçimi zorunludur.
                 </div>
             </div>
@@ -36,11 +41,14 @@
             </div>
             <div class="col-md-4">
                 <label class="form-label">Ürün Adı <span class="text-danger">*</span></label>
-                <select class="form-select" formControlName="urunTipi">
+                <select class="form-select" 
+                        formControlName="urunTipi"
+                        [class.is-invalid]="f.urunTipi.invalid && (f.urunTipi.touched || submitted)">
                     <option [ngValue]="null" disabled>Seçiniz</option>
                     <option *ngFor="let item of urunTipleri" [ngValue]="+item[0]">{{ item[1] }}</option>
                 </select>
-                <div class="invalid-feedback d-block" *ngIf="submitted && frm.controls.urunTipi.invalid">
+                <!-- Hata Mesajı -->
+                <div *ngIf="f.urunTipi.invalid && (f.urunTipi.touched || submitted)" class="invalid-feedback">
                     Ürün Adı zorunludur.
                 </div>
             </div>
@@ -50,44 +58,83 @@
 
             <div class="col-md-4">
                 <label class="form-label">Takip Miktarı <span class="text-danger">*</span></label>
-                <input type="number" class="form-control" formControlName="takipMiktari" />
+                <input type="number" 
+                       class="form-control" 
+                       formControlName="takipMiktari"
+                       [class.is-invalid]="f.takipMiktari.invalid && (f.takipMiktari.touched || submitted)" />
+                <!-- Hata Mesajları -->
+                <div *ngIf="f.takipMiktari.invalid && (f.takipMiktari.touched || submitted)" class="invalid-feedback">
+                    <div *ngIf="f.takipMiktari.errors?.['required']">Takip Miktarı zorunludur.</div>
+                    <div *ngIf="f.takipMiktari.errors?.['min']">Takip Miktarı 0'dan büyük olmalıdır.</div>
+                </div>
             </div>
             <div class="col-md-2">
                 <label class="form-label">Döviz <span class="text-danger">*</span></label>
-                <select class="form-select" formControlName="dovizTipi">
+                <select class="form-select" 
+                        formControlName="dovizTipi"
+                        [class.is-invalid]="f.dovizTipi.invalid && (f.dovizTipi.touched || submitted)">
                     <option value="TL">TL</option>
                     <option value="USD">USD</option>
                     <option value="EUR">EUR</option>
                 </select>
+                <!-- Hata Mesajı -->
+                <div *ngIf="f.dovizTipi.invalid && (f.dovizTipi.touched || submitted)" class="invalid-feedback">
+                    Döviz Tipi zorunludur.
+                </div>
             </div>
             <div class="col-md-3">
                 <label class="form-label">Takip Tarihi <span class="text-danger">*</span></label>
                 <input 
-                type="date" 
-                class="form-control" 
-                (keydown)="$event.preventDefault()"    
-                style="cursor: pointer;" 
-                formControlName="kimlikVerilisTarihi" formControlName="takipTarihi" />
+                    type="date" 
+                    class="form-control" 
+                    (keydown)="$event.preventDefault()"    
+                    style="cursor: pointer;" 
+                    formControlName="takipTarihi"
+                    [class.is-invalid]="f.takipTarihi.invalid && (f.takipTarihi.touched || submitted)" />
+            
+                <div *ngIf="f.takipTarihi.invalid && (f.takipTarihi.touched || submitted)" class="invalid-feedback">
+                    Takip Tarihi zorunludur.
                 </div>
-
+            </div>
 
             <div class="col-md-4">
                 <label class="form-label">Aylık Faiz Oranı (%)</label>
-                <input type="number" class="form-control" formControlName="aylikFaizOrani" />
+                <input type="number" 
+                       class="form-control" 
+                       formControlName="aylikFaizOrani"
+                       [class.is-invalid]="f.aylikFaizOrani.invalid && (f.aylikFaizOrani.touched || submitted)" />
+                
+                <div *ngIf="f.aylikFaizOrani.invalid && (f.aylikFaizOrani.touched || submitted)" class="invalid-feedback">
+                    <div *ngIf="f.aylikFaizOrani.errors?.['min']">Değer 0'dan küçük olamaz.</div>
+                </div>
             </div>
             <div class="col-md-4">
                 <label class="form-label">Faiz Bakiyesi</label>
-                <input type="number" class="form-control" formControlName="faizBakiyesi" />
+                <input type="number" 
+                       class="form-control" 
+                       formControlName="faizBakiyesi"
+                       [class.is-invalid]="f.faizBakiyesi.invalid && (f.faizBakiyesi.touched || submitted)" />
+                
+                <div *ngIf="f.faizBakiyesi.invalid && (f.faizBakiyesi.touched || submitted)" class="invalid-feedback">
+                    <div *ngIf="f.faizBakiyesi.errors?.['min']">Değer 0'dan küçük olamaz.</div>
+                </div>
             </div>
             <div class="col-md-4">
                 <label class="form-label">Masraf Bakiyesi</label>
-                <input type="number" class="form-control" formControlName="masrafBakiyesi" />
+                <input type="number" 
+                       class="form-control" 
+                       formControlName="masrafBakiyesi"
+                       [class.is-invalid]="f.masrafBakiyesi.invalid && (f.masrafBakiyesi.touched || submitted)" />
+               
+                <div *ngIf="f.masrafBakiyesi.invalid && (f.masrafBakiyesi.touched || submitted)" class="invalid-feedback">
+                    <div *ngIf="f.masrafBakiyesi.errors?.['min']">Değer 0'dan küçük olamaz.</div>
+                </div>
             </div>
 
             <h5 class="mt-4">Şube ve Mudi Bilgileri</h5>
             <hr class="mt-0">
 
-            <!-- Şubeler -->
+           
             <div class="col-md-4">
                 <label class="form-label">Kredi Birim Kodu</label>
                 <select class="form-select" formControlName="krediBirimKoduSubeId">
@@ -103,7 +150,7 @@
                 </select>
             </div>
 
-            <!-- Mudi Nolar -->
+          
             <div class="col-md-4">
                 <label class="form-label">Kredi Mudi No</label>
                 <input 
@@ -112,7 +159,12 @@
                     formControlName="krediMudiNo" 
                     maxlength="50" 
                     (input)="onInputNumbersOnly($event)"
+                    [class.is-invalid]="f.krediMudiNo.invalid && (f.krediMudiNo.touched || submitted)"
                 />
+               
+                <div *ngIf="f.krediMudiNo.invalid && (f.krediMudiNo.touched || submitted)" class="invalid-feedback">
+                    <div *ngIf="f.krediMudiNo.errors?.['maxlength']">En fazla 50 karakter olabilir.</div>
+                </div>
             </div>
             <div class="col-md-4">
                 <label class="form-label">Masraf Mudi No</label>
@@ -122,7 +174,12 @@
                     formControlName="masrafMudiNo" 
                     maxlength="50" 
                     (input)="onInputNumbersOnly($event)"
+                    [class.is-invalid]="f.masrafMudiNo.invalid && (f.masrafMudiNo.touched || submitted)"
                 />
+               
+                <div *ngIf="f.masrafMudiNo.invalid && (f.masrafMudiNo.touched || submitted)" class="invalid-feedback">
+                    <div *ngIf="f.masrafMudiNo.errors?.['maxlength']">En fazla 50 karakter olabilir.</div>
+                </div>
             </div>
             <div class="col-md-4">
                 <label class="form-label">Faiz Mudi No</label>
@@ -132,7 +189,12 @@
                     formControlName="faizMudiNo" 
                     maxlength="50" 
                     (input)="onInputNumbersOnly($event)"
+                    [class.is-invalid]="f.faizMudiNo.invalid && (f.faizMudiNo.touched || submitted)"
                 />
+                
+                <div *ngIf="f.faizMudiNo.invalid && (f.faizMudiNo.touched || submitted)" class="invalid-feedback">
+                    <div *ngIf="f.faizMudiNo.errors?.['maxlength']">En fazla 50 karakter olabilir.</div>
+                </div>
             </div>
             <div class="col-md-4">
                 <label class="form-label">Takip Mudi No</label>
@@ -142,10 +204,15 @@
                     formControlName="takipMudiNo" 
                     maxlength="50" 
                     (input)="onInputNumbersOnly($event)"
+                    [class.is-invalid]="f.takipMudiNo.invalid && (f.takipMudiNo.touched || submitted)"
                 />
+             
+                <div *ngIf="f.takipMudiNo.invalid && (f.takipMudiNo.touched || submitted)" class="invalid-feedback">
+                    <div *ngIf="f.takipMudiNo.errors?.['maxlength']">En fazla 50 karakter olabilir.</div>
+                </div>
             </div>
 
-            <!-- Açıklama -->
+          
             <div class="col-12">
                 <label class="form-label">Açıklama</label>
                 <textarea class="form-control" formControlName="aciklama" rows="3"></textarea>

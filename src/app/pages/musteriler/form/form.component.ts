@@ -1,13 +1,15 @@
 import { Component, inject, OnDestroy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms'; // Validators zaten import edilmiş
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { MusterilerService, Musteri, MusteriTuru, BorcluTipi, MusteriListDto } from '../../../services/musteriler.service';
-import { SozlukService, Ilce } from '../../../services/sozluk.service';
+import { MusterilerService } from '../../../services/musteriler.service';
+import { SozlukService } from '../../../services/sozluk.service';
 import { Observable, of, Subject, Subscription } from 'rxjs';
 import { take, debounceTime, distinctUntilChanged, switchMap, startWith } from 'rxjs/operators';
+import { MusteriListDto, MusteriTuru, BorcluTipi } from '../../../core/models/musteri.model';
+import { Ilce } from '../../../core/models/sozluk.model';
+import { Musteri } from '../../../core/models/musteri.model';
 
-// Direktif importları kaldırıldı
 
 @Component({
   standalone: true,
@@ -16,7 +18,7 @@ import { take, debounceTime, distinctUntilChanged, switchMap, startWith } from '
     CommonModule, 
     ReactiveFormsModule, 
     RouterLink
-    // Direktifler import listesinden kaldırıldı
+
   ],
   templateUrl: './form.component.html'
 })
@@ -29,7 +31,7 @@ export default class MusteriFormComponent implements OnDestroy {
 
   kaydediliyor = signal(false);
   duzenlemeMi = false;
-  submitted = false;
+  submitted = false; // Formun gönderilip gönderilmediğini takip etmek için bu SÜPER
   private id: string | null = null;
 
   sehirler$: Observable<{ id: number; ad: string }[]> = of([]);
@@ -43,7 +45,7 @@ export default class MusteriFormComponent implements OnDestroy {
   frm = this.fb.group({
     musteriId: [null as string | null],
     musteriNo: ['', [Validators.required, Validators.maxLength(50)]],
-    adiUnvani: ['', [Validators.maxLength(200)]],
+    adiUnvani: ['', [Validators.required, Validators.maxLength(200)]], // ZORUNLU YAPILDI
     borcluTipi: [BorcluTipi.AsilKrediBorclusu, [Validators.required]],
     borcluSoyadi: [''],
     tckn: [''],
@@ -58,8 +60,8 @@ export default class MusteriFormComponent implements OnDestroy {
     kimlikVerilisTarihi: [null as string | null],
     nufusaKayitliOlduguIl: [''],
   
-    sehirId: [null as number | null],
-    ilceId: [null as number | null],
+    sehirId: [null as number | null, [Validators.required]], // ZORUNLU YAPILDI
+    ilceId: [null as number | null, [Validators.required]], // ZORUNLU YAPILDI
     semt: [''],
     vergiDairesi: [''],
     vergiNo: [''],
@@ -70,6 +72,9 @@ export default class MusteriFormComponent implements OnDestroy {
     musteriMusteriTipi: [MusteriTuru.Bireysel, [Validators.required]],
     hayattaMi: [true]
   });
+
+  // YENİ EKLENDİ: HTML'den form kontrollerine kolay erişim için
+  get f() { return this.frm.controls; }
 
   get musteriMusteriTipi() { return this.frm.controls.musteriMusteriTipi; }
   get tckn() { return this.frm.controls.tckn; }
@@ -162,9 +167,13 @@ export default class MusteriFormComponent implements OnDestroy {
   
 
   onSubmit() {
-    this.submitted = true;
+    this.submitted = true; // Formun gönderildiğini işaretle
     if (this.frm.invalid) {
       console.error('Form geçersiz, kaydetme işlemi durduruldu.');
+      
+      // GÜNCELLENDİ: Bu satır, dokunulmamış olsa bile tüm hatalı alanları tetikler
+      this.frm.markAllAsTouched(); 
+      
       Object.keys(this.frm.controls).forEach(key => {
         const controlErrors = this.frm.get(key)?.errors;
         if (controlErrors != null) {
@@ -179,7 +188,7 @@ export default class MusteriFormComponent implements OnDestroy {
     this.kaydediliyor.set(true);
 
     const formValue = this.frm.getRawValue();
-  
+ 
     const tcknTemiz = (formValue.tckn || '').replace(/\D/g, '');
     const vergiNoTemiz = (formValue.vergiNo || '').replace(/\D/g, '');
     const sskNoTemiz = (formValue.sskNo || '').replace(/\D/g, '');
@@ -226,4 +235,3 @@ export default class MusteriFormComponent implements OnDestroy {
     return typeof msg === 'string' ? msg : 'İşlem başarısız.';
   }
 }
-

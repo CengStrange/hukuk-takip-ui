@@ -15,6 +15,8 @@ import { firstValueFrom } from 'rxjs';
 export default class ListComponent {
   private api = inject(IhtarlarService);
 
+  public readonly Math = Math;
+
   arama = signal<string>('');
   sayfa = signal<number>(1);
   sayfaBoyutu = signal<number>(10);
@@ -65,3 +67,4 @@ export default class ListComponent {
     return (k as any).sonOdemeTarihi ? (k as any).sonOdemeTarihi : 'YOK';
   }
 }
+
